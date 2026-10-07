@@ -49,6 +49,8 @@ jobs:
         if: steps.guard.outputs.run == 'true'
         run: python scripts/send.py
         env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          SUBSCRIBERS: ${{ vars.SUBSCRIBERS }}
           GMAIL_USER: ${{ secrets.GMAIL_USER }}
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
 

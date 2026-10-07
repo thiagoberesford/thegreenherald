@@ -34,11 +34,16 @@ Zero third-party Python dependencies. Runs on the GitHub Actions free tier.
    this directory to `main`.
 2. **Subscribers:** copy `subscribers.txt.example` to `subscribers.txt` and add
    your team's emails, one per line.
-3. **Secrets** (repo Settings -> Secrets and variables -> Actions):
+3. **Secrets and variables** (repo Settings -> Secrets and variables -> Actions):
+   - `RESEND_API_KEY` — primary sender. Create an account at https://resend.com,
+     add + verify the domain `thegreenherald.com` (records in `DNS.md`, step 5),
+     then create an API key.
+   - `SUBSCRIBERS` (variable, not secret) — comma-separated recipient emails;
+     each subscriber gets an individual email.
    - `MISTRAL_API_KEY` — from https://console.mistral.ai (La Plateforme)
-   - `GMAIL_USER` — your Gmail address
-   - `GMAIL_APP_PASSWORD` — create one at https://myaccount.google.com/apppasswords
-     (requires 2FA on the Google account)
+   - Optional Gmail fallback (`GMAIL_USER` + `GMAIL_APP_PASSWORD` from
+     https://myaccount.google.com/apppasswords, requires 2FA): used only if
+     `RESEND_API_KEY` is missing.
 4. **GitHub Pages:** Settings -> Pages -> Deploy from branch `main` / `/docs`,
    then set the custom domain per `DNS.md`.
 5. **Cloudflare DNS:** follow `DNS.md`.
@@ -68,7 +73,8 @@ is always actually solvable.
 - GitHub Actions + Pages: free (public repo)
 - Google News RSS + Semantic Scholar: free
 - Mistral: free tier / Pro credits (~1-2 EUR/mo at most at this volume)
-- Gmail SMTP: free (limit 500 recipients/day)
+- Resend: free tier, branded sender via the verified domain (100 emails/day)
+- Gmail SMTP fallback: free (limit 500 recipients/day)
 - Domain: ~10 EUR/year (the only real cost)
 
 ## Notes

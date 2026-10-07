@@ -50,7 +50,24 @@ records automatically), then add routes:
 
 ## Later: branded sending (optional upgrade)
 
-To send from `editor@thegreenherald.com` instead of Gmail (better deliverability
-at scale), sign up for Resend and add the SPF/DKIM/DMARC records it provides;
-then swap `scripts/send.py` for a Resend API call. The domain work above stays
-unchanged.
+~~~SUPERSEDED: branded sending is now the primary method — see the Resend
+section in the README and step 5 below.~~
+
+## 5. Branded sending with Resend (recommended)
+
+Now that you own the domain, send as `editor@thegreenherald.com` instead of
+from a Gmail address. Free tier: 100 emails/day, 3,000/month.
+
+1. Create an account at https://resend.com
+2. Domains -> Add domain: `thegreenherald.com`
+3. Resend shows you DNS records (SPF, DKIM, DMARC). Add them in Cloudflare
+   exactly as given — the DKIM record name/value comes from the dashboard;
+   don't copy them from anywhere else. Proxy status: DNS only.
+4. Click Verify in Resend (usually minutes).
+5. Create an API key and add it as the repo secret `RESEND_API_KEY`.
+
+`scripts/send.py` uses Resend automatically when `RESEND_API_KEY` is present,
+and falls back to Gmail SMTP otherwise.
+
+The email-routing addresses from step 3 (reply@, hello@, unsubscribe@)
+stay exactly as configured above.

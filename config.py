@@ -5,6 +5,14 @@ TAGLINE = "All the news that the planet can afford to print"
 DOMAIN = "thegreenherald.com"
 EDITION_URL_BASE = "https://" + DOMAIN          # web editions live at https://thegreenherald.com/YYYY-MM-DD.html
 
+# --- Sending ---
+SENDER_NAME = BRAND
+SENDER_EMAIL = "editor@" + DOMAIN               # branded sender (Resend, verified domain)
+REPLY_TO = "reply@" + DOMAIN
+UNSUBSCRIBE_TO = "unsubscribe@" + DOMAIN
+# With RESEND_API_KEY set, sends via Resend (recommended, branded From address).
+# Without it, falls back to Gmail SMTP (GMAIL_USER + GMAIL_APP_PASSWORD).
+
 TIMEZONE = "Europe/Lisbon"
 SEND_HOUR_LOCAL = 6                              # email lands at 06:00 Lisbon
 WINDOW_CLOSES_BEFORE_SEND_H = 1                  # news window closes at 05:00 Lisbon
