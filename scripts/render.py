@@ -430,7 +430,7 @@ def main():
     DOCS.mkdir(exist_ok=True)
     (DOCS / f"{date_str}.html").write_text(web)
 
-    edition_url = f"{config.EDITION_URL_BASE}/{date_str}.html#puzzle"
+    edition_url = f"{config.EDITION_URL_BASE}/{date_str}.html"
     email = to_email_html(web, edition_url)
     (OUT / "email.html").write_text(email)
 

@@ -7,7 +7,10 @@ from zoneinfo import ZoneInfo
 BRAND = "The Green Herald"
 TAGLINE = "All the news that the planet can afford to print"
 DOMAIN = "thegreenherald.com"
-EDITION_URL_BASE = "https://" + DOMAIN
+EDITION_URL_BASE = "http://" + DOMAIN
+# NOTE: http, not https, because the domain's certificate is not live yet.
+# Once Settings -> Pages shows "Enforce HTTPS" and it is ticked, GitHub
+# 301-redirects http -> https automatically, so these links keep working.
 MASTHEAD_KICKER = "Your daily sustainability refresh"
 
 # --- Sending ---
