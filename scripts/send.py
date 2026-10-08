@@ -59,6 +59,8 @@ def send_via_resend(subscribers, subject, html, text):
             headers={
                 "Authorization": "Bearer " + api_key,
                 "Content-Type": "application/json",
+                "Accept": "application/json",
+                "User-Agent": "thegreenherald-pipeline/1.0",
             },
         )
         try:
