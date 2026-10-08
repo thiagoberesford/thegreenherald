@@ -1,11 +1,19 @@
-"""Compose the edition with the Mistral API: pick stories, write summaries, the joke.
+"""Compose the edition with the Mistral API, then VALIDATE the output:
+
+- every news story must map to a real fetched item (by id, fallback title match);
+  its url/source/date are overwritten from the raw item (no hallucinated links)
+- papers may only appear in the papers section (Big Tech must be news items)
+- every published link must be reachable over HTTP (bot-blocks on publishers
+  like 403/418 are treated as human-reachable)
 
 Reads out/raw.json -> writes out/edition.json. No third-party dependencies.
 """
 
 import json
 import os
+import re
 import sys
+import urllib.error
 import urllib.request
 from pathlib import Path
 
@@ -28,33 +36,35 @@ and exactly 2 short paragraphs (2-3 sentences each). Quotes are welcome if prese
 {sections_on_page} STRONGEST themes for today's grid. Prefer sections with multiple strong, \
 distinct stories. Fill each chosen section with {stories_per_section} stories: headline, \
 short italic deck (may be empty), and a 2-3 sentence body.
-- "Big Tech & Cloud" section: pick the {bigtech_n} strongest NEWS items about big tech, cloud and \
-AI + sustainability (data centres, energy, water, policy). Use only items from the news list, \
-NEVER papers from the papers list - papers belong exclusively in the papers section. \
-Headline + 2-3 sentence body each. Also write one "briefs" line mentioning notable other \
-company items ONLY if such items exist; otherwise return an empty string for briefs.
-- AGENDA: scan ALL news items (any section, including but not only "Events") for clearly \
-UPCOMING events - conferences, summits, ceremonies, deadlines - happening between now and \
-{events_end} (end of quarter). You may extract an agenda event from summit or industry \
-coverage even if it was published as a news story. List up to 4 events with event name, when \
-(date or date range), where. Only include events with a concrete upcoming date; if none \
-qualify, return an empty array.
+- "Big Tech & Cloud" section: pick the {bigtech_n} strongest NEWS items (id starting with "n") \
+about big tech, cloud and AI + sustainability. NEVER use papers (ids starting with "p") here - \
+papers belong only in the papers section. Headline + 2-3 sentence body each. Also write one \
+"briefs" line mentioning notable other company items ONLY if such items exist; \
+otherwise return an empty string for briefs.
+- AGENDA: scan ALL news items (any section) for clearly UPCOMING events - conferences, \
+summits, ceremonies, deadlines - happening between now and {events_end} (end of quarter). \
+You may extract an agenda event from summit or industry coverage even if published as news. \
+List up to 4 events with event name, when (date or date range), where. Only include events \
+with a concrete upcoming date; if none qualify, return an empty array.
 - Papers: select the {papers_n} most relevant from the list, preferring the most recent and \
-most significant; use the abstract to judge relevance. Keep title, authors, journal, url, date \
-exactly as given. If the papers list is empty, return an empty papers array.
+most significant; use the abstract to judge relevance. If the papers list is empty, return \
+an empty papers array.
 - Write one joke of the day: short, about sustainability/climate/AI, family-friendly.
 - Every story MUST cite the source publisher and date as given in the item; never invent sources.
 - Bodies must be factual and grounded in the item text. Do not add numbers that are not present.
 
+CRITICAL - item ids: every story, agenda entry and paper you output MUST include the "id" \
+of the exact input item it is based on. Copy ids verbatim; do not invent ids.
+
 Return STRICT JSON only, matching exactly this schema:
 {{
-  "lead": {{"title": "", "deck": "", "para1": "", "para2": "", "source": "", "source_url": "", "source_date": ""}},
+  "lead": {{"id": "", "title": "", "deck": "", "para1": "", "para2": "", "source": "", "source_url": "", "source_date": ""}},
   "sections": [
-    {{"label": "", "stories": [{{"title": "", "deck": "", "body": "", "source": "", "source_url": "", "source_date": ""}}]}}
+    {{"label": "", "stories": [{{"id": "", "title": "", "deck": "", "body": "", "source": "", "source_url": "", "source_date": ""}}]}}
   ],
-  "bigtech": {{"stories": [{{"title": "", "body": "", "source": "", "source_url": "", "source_date": ""}}], "briefs": ""}},
-  "agenda": [{{"event": "", "when": "", "where": "", "source": "", "source_url": ""}}],
-  "papers": [{{"title": "", "authors": "", "journal": "", "url": "", "date": ""}}],
+  "bigtech": {{"stories": [{{"id": "", "title": "", "body": "", "source": "", "source_url": "", "source_date": ""}}], "briefs": ""}},
+  "agenda": [{{"id": "", "event": "", "when": "", "where": "", "source": "", "source_url": ""}}],
+  "papers": [{{"id": "", "title": "", "authors": "", "journal": "", "url": "", "date": ""}}],
   "joke": {{"setup": "", "punchline": ""}}
 }}
 """
@@ -84,25 +94,161 @@ def call_mistral(prompt, user_content):
     return data["choices"][0]["message"]["content"]
 
 
+def _norm(t):
+    return re.sub(r"\s+", " ", re.sub(r"[^a-z0-9 ]", " ", (t or "").lower())).strip()
+
+
+def url_reachable(url):
+    """HTTP check. Bot-blocks (401/403/418/429) are treated as human-reachable:
+    publishers commonly block automation while the link works fine in a browser."""
+    try:
+        req = urllib.request.Request(
+            url, headers={"User-Agent": "Mozilla/5.0 (compatible; TheGreenHeraldBot/1.0)"})
+        with urllib.request.urlopen(req, timeout=10) as r:
+            return r.status < 400
+    except urllib.error.HTTPError as e:
+        return e.code in (401, 403, 418, 429)
+    except (urllib.error.URLError, TimeoutError, OSError):
+        return False
+
+
+def validate_and_repair(edition, raw):
+    """Deterministic output guarantees. Returns (edition, report)."""
+    news = raw.get("news", [])
+    papers = raw.get("papers", [])
+    news_by_id = {n["id"]: n for n in news}
+    news_by_title = {}
+    for n in news:
+        news_by_title.setdefault(_norm(n["title"]), n)
+    paper_by_id = {p["id"]: p for p in papers}
+    paper_by_title = {}
+    for p in papers:
+        paper_by_title.setdefault(_norm(p["title"]), p)
+
+    stats = {"repaired": 0, "dropped": 0, "unreachable": 0}
+
+    def resolve_news(item_id, title):
+        item = news_by_id.get(item_id) or news_by_title.get(_norm(title))
+        return item
+
+    def fix_news_story(s):
+        item = resolve_news(s.get("id"), s.get("title"))
+        if not item:
+            stats["dropped"] += 1
+            return None
+        if (s.get("source_url") != item["link"]
+                or s.get("source") != item["source"]):
+            stats["repaired"] += 1
+        s["id"] = item["id"]
+        s["source_url"] = item["link"]
+        s["source"] = item["source"]
+        s["source_date"] = item["date"][:16]
+        if not url_reachable(item["link"]):
+            stats["unreachable"] += 1
+            return None
+        return s
+
+    def fix_paper(p):
+        item = paper_by_id.get(p.get("id")) or paper_by_title.get(_norm(p.get("title", "")))
+        if not item:
+            stats["dropped"] += 1
+            return None
+        if p.get("url") != item["url"]:
+            stats["repaired"] += 1
+        p["id"] = item["id"]
+        p["url"] = item["url"]
+        p["title"] = item["title"]
+        p["authors"] = item["authors"]
+        p["journal"] = item["journal"]
+        p["date"] = item["date"]
+        return p
+
+    # lead
+    lead = fix_news_story(edition.get("lead", {})) if edition.get("lead") else None
+
+    # sections
+    sections = []
+    for sec in edition.get("sections", []):
+        stories = [s for s in (fix_news_story(x) for x in sec.get("stories", [])) if s]
+        if stories:
+            sec["stories"] = stories
+            sections.append(sec)
+
+    # big tech: news only (papers dropped automatically: paper ids never match news items)
+    bigtech = edition.get("bigtech", {})
+    bt_stories = [s for s in (fix_news_story(x) for x in bigtech.get("stories", [])) if s]
+    bigtech["stories"] = bt_stories
+
+    # agenda
+    agenda = []
+    for a in edition.get("agenda", []):
+        item = resolve_news(a.get("id"), a.get("event"))
+        if not item:
+            stats["dropped"] += 1
+            continue
+        a["source_url"] = item["link"]
+        a["source"] = item["source"]
+        agenda.append(a)
+
+    # papers
+    papers_out = [p for p in (fix_paper(x) for x in edition.get("papers", [])) if p]
+
+    # if the lead failed, promote the strongest available story
+    if lead is None:
+        for sec in sections:
+            if sec["stories"]:
+                promo = sec["stories"].pop(0)
+                lead = {
+                    "id": promo["id"], "title": promo["title"], "deck": promo.get("deck", ""),
+                    "para1": promo["body"], "para2": "",
+                    "source": promo["source"], "source_url": promo["source_url"],
+                    "source_date": promo["source_date"],
+                }
+                stats["repaired"] += 1
+                break
+        if lead is None and bt_stories:
+            promo = bt_stories.pop(0)
+            lead = {
+                "id": promo["id"], "title": promo["title"], "deck": "",
+                "para1": promo["body"], "para2": "",
+                "source": promo["source"], "source_url": promo["source_url"],
+                "source_date": promo["source_date"],
+            }
+            stats["repaired"] += 1
+        if lead is None:
+            raise SystemExit("validation: no valid lead story; aborting edition")
+
+    edition["lead"] = lead
+    edition["sections"] = sections
+    edition["bigtech"] = bigtech
+    edition["agenda"] = agenda
+    edition["papers"] = papers_out
+    return edition, stats
+
+
 def main():
     raw = json.loads((OUT / "raw.json").read_text())
 
-    # compact the raw items for the prompt: freshest 10 per label (bounds input size)
+    # compact the raw items for the prompt: freshest 10 per label, with ids
     by_label = {}
     for n in raw["news"]:
         by_label.setdefault(n["section"], []).append(n)
     items = []
+    idx = 0
     for label, lst in by_label.items():
         lst.sort(key=lambda x: x["date"], reverse=True)
         for n in lst[:10]:
+            idx += 1
+            n["id"] = f"n{idx}"
             items.append({
-                "section": n["section"], "title": n["title"], "source": n["source"],
-                "url": n["link"], "date": n["date"][:16],
+                "id": n["id"], "section": n["section"], "title": n["title"],
+                "source": n["source"], "url": n["link"], "date": n["date"][:16],
             })
     papers = []
-    for p in raw["papers"]:
+    for i, p in enumerate(raw["papers"], start=1):
+        p["id"] = f"p{i}"
         papers.append({
-            "title": p["title"], "authors": p.get("authors", ""),
+            "id": p["id"], "title": p["title"], "authors": p.get("authors", ""),
             "journal": p.get("journal", ""), "url": p["url"], "date": p["date"],
             "abstract": (p.get("abstract") or "")[:300],
         })
@@ -135,6 +281,13 @@ def main():
         raise SystemExit(f"composer JSON invalid after 2 attempts; "
                          f"raw response saved to out/compose_raw.txt ({len(content)} chars)")
 
+    edition, stats = validate_and_repair(edition, raw)
+    print(f"validation: {stats['repaired']} repaired (url/source overwritten from raw), "
+          f"{stats['dropped']} dropped (unmatched), {stats['unreachable']} unreachable dropped")
+    if stats["dropped"] or stats["unreachable"]:
+        print("note: content above was removed because it could not be traced to a "
+              "real fetched item or its link did not respond")
+
     edition["meta"] = {
         "brand": config.BRAND,
         "date": raw["fetched_at"][:10],
@@ -144,7 +297,9 @@ def main():
     (OUT / "edition.json").write_text(json.dumps(edition, indent=1))
     sections = ", ".join(s.get("label", "?") for s in edition.get("sections", []))
     print(f"edition composed | lead: {edition.get('lead', {}).get('title', '?')}")
-    print(f"sections chosen: {sections} | agenda items: {len(edition.get('agenda', []))}")
+    print(f"sections chosen: {sections} | agenda items: {len(edition.get('agenda', []))} "
+          f"| bigtech: {len(edition.get('bigtech', {}).get('stories', []))} stories | "
+          f"papers: {len(edition.get('papers', []))}")
 
 
 if __name__ == "__main__":

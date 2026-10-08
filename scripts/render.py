@@ -113,9 +113,12 @@ def grid_columns(sections):
 
 
 def bigtech_band(bt):
+    stories = bt.get("stories", [])
+    if not stories:
+        return ""
+    n = max(1, len(stories))
     story_tds = []
-    n = max(1, len(bt.get("stories", [])))
-    for i, s in enumerate(bt.get("stories", [])):
+    for i, s in enumerate(stories):
         border = "border-right:1px solid #999;" if i < n - 1 else ""
         pad = "padding-right:12px;" if i == 0 else ("padding:0 12px;" if i < n - 1 else "padding-left:12px;")
         story_tds.append(
