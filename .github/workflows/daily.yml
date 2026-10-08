@@ -23,6 +23,8 @@ jobs:
 
       - name: Time guard (05:00 Europe/Lisbon)
         id: guard
+        env:
+          GUARD_BYPASS: ${{ vars.GUARD_BYPASS }}
         run: |
           set +e
           python scripts/guard.py
