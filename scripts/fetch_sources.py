@@ -131,6 +131,31 @@ def fetch_papers():
     return papers
 
 
+def normalize_title(t):
+    return re.sub(r"\s+", " ", re.sub(r"[^a-z0-9 ]", " ", (t or "").lower())).strip()
+
+
+def load_recent_history(edition_date):
+    """URLs and normalized titles published in the last HISTORY_EDITIONS editions."""
+    path = ROOT / "data" / "published.json"
+    urls, titles = set(), set()
+    if not path.exists():
+        return urls, titles
+    try:
+        hist = json.loads(path.read_text())
+    except json.JSONDecodeError:
+        return urls, titles
+    for ed_date, entry in hist.items():
+        try:
+            age = (edition_date - datetime.strptime(ed_date, "%Y-%m-%d").date()).days
+        except ValueError:
+            continue
+        if 0 < age <= config.HISTORY_EDITIONS:
+            urls.update(entry.get("urls", []))
+            titles.update(entry.get("titles", []))
+    return urls, titles
+
+
 def main():
     OUT.mkdir(exist_ok=True)
     raw = {"fetched_at": now_local().isoformat(),
@@ -153,10 +178,20 @@ def main():
         deduped.append(it)
     deduped.sort(key=lambda x: -x["timestamp"])
 
-    raw["news"] = deduped
-    raw["papers"] = fetch_papers()
+    # never repeat what a recent edition already published
+    hist_urls, hist_titles = load_recent_history(now_local().date())
+    fresh = [n for n in deduped
+             if n["link"] not in hist_urls
+             and normalize_title(n["title"]) not in hist_titles]
+    papers = [p for p in fetch_papers()
+              if p["url"] not in hist_urls
+              and normalize_title(p["title"]) not in hist_titles]
+
+    raw["news"] = fresh
+    raw["papers"] = papers
     (OUT / "raw.json").write_text(json.dumps(raw, indent=1))
-    print(f"news items: {len(deduped)} | papers: {len(raw['papers'])}")
+    print(f"news items: {len(fresh)} (of {len(deduped)} in window, {len(deduped) - len(fresh)} already published) "
+          f"| papers: {len(papers)}")
     print(f"window: {raw['window_start']} -> {raw['window_close']}")
 
 

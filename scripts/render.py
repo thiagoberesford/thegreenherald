@@ -224,6 +224,7 @@ def build_web_html(ed, date_str):
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
     <tr><td align="center" style="padding:9px 0 5px 0;">
       <span style="font-size:36px;font-weight:700;letter-spacing:1px;line-height:1;">{esc(config.BRAND)}</span><br>
+      <div style="font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:#556B2F;margin-top:4px;">{esc(config.MASTHEAD_KICKER)}</div>
       <span style="font-style:italic;font-size:10px;color:#333;">&ldquo;{esc(config.TAGLINE)}&rdquo;</span>
     </td></tr>
   </table>
@@ -328,6 +329,42 @@ a{{color:#1a3d6e}}</style></head>
 """
 
 
+def normalize_title(t):
+    return re.sub(r"\s+", " ", re.sub(r"[^a-z0-9 ]", " ", (t or "").lower())).strip()
+
+
+def record_history(ed, date_str):
+    """Append this edition's published URLs/titles to data/published.json so
+    future fetches never repeat them."""
+    hist_path = ROOT / "data" / "published.json"
+    try:
+        hist = json.loads(hist_path.read_text()) if hist_path.exists() else {}
+    except json.JSONDecodeError:
+        hist = {}
+    urls, titles = set(), set()
+
+    def add(url, title):
+        if url:
+            urls.add(url)
+        if title:
+            titles.add(normalize_title(title))
+
+    lead = ed.get("lead", {})
+    add(lead.get("source_url"), lead.get("title"))
+    for sec in ed.get("sections", []):
+        for s in sec.get("stories", []):
+            add(s.get("source_url"), s.get("title"))
+    for s in ed.get("bigtech", {}).get("stories", []):
+        add(s.get("source_url"), s.get("title"))
+    for p in ed.get("papers", []):
+        add(p.get("url"), p.get("title"))
+
+    hist[date_str] = {"urls": sorted(urls), "titles": sorted(t for t in titles if t)}
+    hist = dict(sorted(hist.items())[-config.HISTORY_KEEP_EDITIONS:])
+    hist_path.parent.mkdir(exist_ok=True)
+    hist_path.write_text(json.dumps(hist, indent=1))
+
+
 def main():
     ed = json.loads((OUT / "edition.json").read_text())
     date_str = ed["meta"]["date"]
@@ -339,9 +376,12 @@ def main():
     email = to_email_html(web, edition_url)
     (OUT / "email.html").write_text(email)
 
+    record_history(ed, date_str)
+
     editions = sorted(p.stem for p in DOCS.glob("*.html") if p.stem != "index")
     (DOCS / "index.html").write_text(build_archive(editions))
-    print(f"rendered: docs/{date_str}.html | out/email.html | archive: {len(editions)} editions")
+    print(f"rendered: docs/{date_str}.html | out/email.html | archive: {len(editions)} editions "
+          f"| history recorded for {date_str}")
 
 
 if __name__ == "__main__":

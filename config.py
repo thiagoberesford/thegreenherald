@@ -13,6 +13,13 @@ UNSUBSCRIBE_TO = "unsubscribe@" + DOMAIN
 # With RESEND_API_KEY set, sends via Resend (recommended, branded From address).
 # Without it, falls back to Gmail SMTP (GMAIL_USER + GMAIL_APP_PASSWORD).
 
+# --- Masthead ---
+MASTHEAD_KICKER = "Your daily sustainability refresh"
+
+# --- Dedupe: stories published in recent editions are never repeated ---
+HISTORY_EDITIONS = 2          # look back this many editions in data/published.json
+HISTORY_KEEP_EDITIONS = 14   # registry entries retained in the repo
+
 TIMEZONE = "Europe/Lisbon"
 SEND_HOUR_LOCAL = 6                              # email lands at 06:00 Lisbon
 WINDOW_CLOSES_BEFORE_SEND_H = 1                  # news window closes at 05:00 Lisbon
