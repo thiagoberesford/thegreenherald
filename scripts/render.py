@@ -35,6 +35,23 @@ CSS = """
   .pcell { width: 24px; height: 24px; border: 0; text-align: center; font-family: "Times New Roman", Times, Georgia, serif; font-size: 13px; font-weight: 700; text-transform: uppercase; padding: 0; margin: 0; outline: none; background: transparent; display: block; }
   .pcell:focus { background: #fdf6d8; }
   .pnum { position: absolute; top: 0; left: 2px; font-size: 6px; color: #666; line-height: 1; }
+  @media only screen and (max-width: 620px) {
+    .stack { display: block !important; width: 100% !important; max-width: 100% !important; }
+    .stack-nor { border-right: 0 !important; }
+    .stack-gap { padding: 0 0 12px 0 !important; margin: 0 !important; }
+    .m-head { font-size: 28px !important; }
+    .m-kicker { font-size: 11px !important; }
+    .lead-title { font-size: 19px !important; }
+    .deck { font-size: 12px !important; }
+    .h-title { font-size: 15px !important; line-height: 1.2 !important; }
+    .b-text { font-size: 13px !important; line-height: 1.5 !important; text-align: left !important; }
+    .s-src { font-size: 10px !important; }
+    .agenda-row { font-size: 12px !important; line-height: 1.5 !important; }
+    .paper { font-size: 12px !important; line-height: 1.5 !important; }
+    .joke { font-size: 13px !important; line-height: 1.5 !important; }
+    .clues { font-size: 12px !important; line-height: 1.6 !important; }
+    .play-link { font-size: 12px !important; }
+  }
 """
 
 SCRIPT = """
@@ -78,7 +95,7 @@ def src_line(story):
     date = story.get("source_date") or ""
     label = f'<a href="{esc(url)}" target="_blank" style="color:#1a3d6e;">{esc(src)}</a>' if url else esc(src)
     extra = f" — {esc(date)}" if date else ""
-    return f'<div style="font-size:8.5px;color:#666;margin-top:2px;">Source: {label}{extra}</div>'
+    return f'<div class="s-src" style="font-size:8.5px;color:#666;margin-top:2px;">Source: {label}{extra}</div>'
 
 
 def country_prefix(s):
@@ -92,12 +109,12 @@ def story_block(s, first=False):
     parts = ['<div style="margin-bottom:6px;"' if first else
              '<div style="border-top:1px dotted #999;padding-top:5px;margin-top:6px;margin-bottom:6px;"']
     parts.append(">")
-    parts.append(f'<a href="{esc(s.get("source_url", ""))}" target="_blank" '
+    parts.append(f'<a class="h-title" href="{esc(s.get("source_url", ""))}" target="_blank" '
                  f'style="font-size:12px;font-weight:700;line-height:1.12;color:#111;">{country_prefix(s)}{esc(s["title"])}</a>')
     deck = s.get("deck") or ""
     if deck:
         parts.append(f'<div style="font-size:9px;font-style:italic;color:#444;margin:1px 0 2px 0;">{esc(deck)}</div>')
-    parts.append(f'<div style="font-size:10.5px;line-height:1.35;text-align:justify;margin-top:2px;">{esc(s["body"])}</div>')
+    parts.append(f'<div class="b-text" style="font-size:10.5px;line-height:1.35;text-align:justify;margin-top:2px;">{esc(s["body"])}</div>')
     parts.append(src_line(s))
     parts.append("</div>")
     return "".join(parts)
@@ -111,7 +128,7 @@ def grid_columns(sections):
         border = "border-right:1px solid #bbb;" if i < len(sections) - 1 else ""
         stories = "".join(story_block(s, first=(j == 0)) for j, s in enumerate(sec["stories"]))
         tds.append(
-            f'<td width="{100 // len(sections)}%" valign="top" style="{pad_left}{border}">'
+            f'<td width="{100 // len(sections)}%" valign="top" class="stack stack-nor stack-gap" style="{pad_left}{border}">'
             f'<div style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;'
             f'text-align:center;border-bottom:2px solid #111;padding-bottom:1px;margin-bottom:5px;">{esc(sec["label"])}</div>'
             f"{stories}</td>"
@@ -129,10 +146,10 @@ def bigtech_band(bt):
         border = "border-right:1px solid #999;" if i < n - 1 else ""
         pad = "padding-right:12px;" if i == 0 else ("padding:0 12px;" if i < n - 1 else "padding-left:12px;")
         story_tds.append(
-            f'<td width="{100 // n}%" valign="top" style="{pad}{border}">'
+            f'<td width="{100 // n}%" valign="top" class="stack stack-nor stack-gap" style="{pad}{border}">'
             f'<a href="{esc(s.get("source_url", ""))}" target="_blank" '
-            f'style="font-size:11.5px;font-weight:700;line-height:1.12;color:#111;">{country_prefix(s)}{esc(s["title"])}</a>'
-            f'<div style="font-size:10.5px;line-height:1.35;text-align:justify;margin-top:2px;">{esc(s["body"])}</div>'
+            f'class="h-title" style="font-size:11.5px;font-weight:700;line-height:1.12;color:#111;">{country_prefix(s)}{esc(s["title"])}</a>'
+            f'<div class="b-text" style="font-size:10.5px;line-height:1.35;text-align:justify;margin-top:2px;">{esc(s["body"])}</div>'
             f"{src_line(s)}</td>"
         )
     briefs = bt.get("briefs") or ""
@@ -166,7 +183,7 @@ def agenda_band(items):
         src_html = (f' <span style="font-size:8px;color:#666;">(<a href="{esc(a.get("source_url", ""))}" '
                     f'target="_blank" style="color:#1a3d6e;">{esc(src)}</a>)</span>') if src else ""
         rows.append(
-            f'<div style="{border}padding:2px 0;font-size:9.5px;line-height:1.35;">'
+            f'<div class="agenda-row" style="{border}padding:2px 0;font-size:9.5px;line-height:1.35;">'
             f'<b>{esc(a["event"])}</b> &mdash; {esc(a.get("when", ""))}{where}{src_html}</div>'
         )
     return (
@@ -189,7 +206,7 @@ def papers_rows(papers):
     for i, p in enumerate(papers):
         border = "border-bottom:1px dotted #bbb;" if i < n - 1 else ""
         rows.append(
-            f'<tr><td style="{border}padding:2px 0;font-size:10.5px;line-height:1.35;">'
+            f'<tr><td class="paper" style="{border}padding:2px 0;font-size:10.5px;line-height:1.35;">'
             f'<a href="{esc(p["url"])}" target="_blank" style="font-weight:700;color:#111;">{esc(p["title"])}</a>'
             f' &mdash; {esc(p.get("authors", ""))} &middot; '
             f'<a href="{esc(p["url"])}" target="_blank" style="color:#1a3d6e;">{esc(p.get("journal", ""))}</a>'
@@ -261,8 +278,8 @@ def build_web_html(ed, date_str):
   </table>
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
     <tr><td align="center" style="padding:5px 0 3px 0;">
-      <span style="font-size:36px;font-weight:700;letter-spacing:1px;line-height:1;color:#556B2F;">{esc(config.BRAND)}</span><br>
-      <div style="font-size:9.5px;letter-spacing:2.5px;text-transform:uppercase;color:#444;margin-top:3px;">{esc(config.MASTHEAD_KICKER)}</div>
+      <span class="m-head" style="font-size:36px;font-weight:700;letter-spacing:1px;line-height:1;color:#556B2F;">{esc(config.BRAND)}</span><br>
+      <div class="m-kicker" style="font-size:9.5px;letter-spacing:2.5px;text-transform:uppercase;color:#444;margin-top:3px;">{esc(config.MASTHEAD_KICKER)}</div>
       <span style="font-style:italic;font-size:10px;color:#333;">&ldquo;{esc(config.TAGLINE)}&rdquo;</span>
     </td></tr>
   </table>
@@ -274,14 +291,14 @@ def build_web_html(ed, date_str):
   </table>
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
     <tr><td align="center" style="padding:6px 20px 2px 20px;">
-      <a href="{esc(lead.get('source_url', ''))}" target="_blank" style="font-size:22px;font-weight:700;line-height:1.08;color:#111;">{country_prefix(lead)}{esc(lead["title"])}</a>
-      <div style="font-style:italic;font-size:10.5px;color:#222;margin-top:3px;">{esc(lead.get("deck", ""))}</div>
+      <a class="lead-title" href="{esc(lead.get('source_url', ''))}" target="_blank" style="font-size:22px;font-weight:700;line-height:1.08;color:#111;">{country_prefix(lead)}{esc(lead["title"])}</a>
+      <div class="deck" style="font-style:italic;font-size:10.5px;color:#222;margin-top:3px;">{esc(lead.get("deck", ""))}</div>
     </td></tr>
     <tr><td style="padding:4px 0 0 0;">
       <table role="presentation" width="100%" cellpadding="0" cellspacing="8" style="border-collapse:separate;">
         <tr>
-          <td width="50%" valign="top" style="font-size:10.5px;line-height:1.35;text-align:justify;border-right:1px solid #ccc;padding-right:12px;">{esc(lead["para1"])}</td>
-          <td width="50%" valign="top" style="font-size:10.5px;line-height:1.35;text-align:justify;">{esc(lead["para2"])}</td>
+          <td width="50%" valign="top" class="stack b-text" style="font-size:10.5px;line-height:1.35;text-align:justify;border-right:1px solid #ccc;padding-right:12px;">{esc(lead["para1"])}</td>
+          <td width="50%" valign="top" class="stack b-text" style="font-size:10.5px;line-height:1.35;text-align:justify;">{esc(lead["para2"])}</td>
         </tr>
       </table>
     </td></tr>
@@ -300,19 +317,19 @@ def build_web_html(ed, date_str):
   </table>
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-top:2px solid #111;border-collapse:collapse;margin-top:7px;">
     <tr>
-      <td width="32%" valign="top" style="padding:4px 12px 0 0;border-right:1px solid #bbb;">
+      <td width="32%" valign="top" class="stack stack-nor stack-gap" style="padding:4px 12px 0 0;border-right:1px solid #bbb;">
         <div style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;text-align:center;border-bottom:2px solid #111;padding-bottom:1px;margin-bottom:4px;">Joke of the Day</div>
-        <div style="font-size:11px;line-height:1.4;font-style:italic;text-align:justify;">{esc(joke.get("setup", ""))}<br><br>{esc(joke.get("punchline", ""))}</div>
+        <div class="joke" style="font-size:11px;line-height:1.4;font-style:italic;text-align:justify;">{esc(joke.get("setup", ""))}<br><br>{esc(joke.get("punchline", ""))}</div>
         <div style="font-size:8.5px;color:#777;margin-top:4px;">(Groans welcome. Better jokes: reply to this email.)</div>
       </td>
-      <td width="68%" valign="top" style="padding:4px 0 0 12px;" id="puzzle">
+      <td width="68%" valign="top" class="stack stack-gap" style="padding:4px 0 0 12px;" id="puzzle">
         <div style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;text-align:center;border-bottom:2px solid #111;padding-bottom:1px;margin-bottom:4px;">Daily Puzzle — Sustainability Mini-Crossword</div>
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
           <tr>
             <td width="40%" valign="top">{grid}{buttons}
               <div style="font-size:8px;color:#777;text-align:center;margin-top:2px;">Type your answers, or print and solve with a pen &middot; Answers in tomorrow's edition</div>
             </td>
-            <td width="60%" valign="top" style="padding-left:12px;font-size:9px;line-height:1.4;">
+            <td width="60%" valign="top" class="clues" style="padding-left:12px;font-size:9px;line-height:1.4;">
               <b>ACROSS</b><br>{across}<br><b>DOWN</b><br>{down}
             </td>
           </tr>
@@ -343,7 +360,7 @@ def to_email_html(web_html, edition_url):
     out = out.replace("  .pnum { position: absolute; top: 0; left: 2px; font-size: 6px; color: #666; line-height: 1; }\n", "")
     out = re.sub(r'<div style="text-align:center;margin-top:5px;">.*?</div>',
                  f'<div style="text-align:center;margin-top:5px;">'
-                 f'<a href="{edition_url}" target="_blank" style="font-size:8.5px;font-weight:700;'
+                 f'<a class="play-link" href="{edition_url}" target="_blank" style="font-size:8.5px;font-weight:700;'
                  f'letter-spacing:1px;text-transform:uppercase;color:#1a3d6e;text-decoration:underline;">'
                  f'Play this puzzle online &rarr;</a></div>', out, flags=re.S)
     out = out.replace("Type your answers, or print and solve with a pen &middot; Answers in tomorrow's edition",
