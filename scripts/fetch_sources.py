@@ -145,7 +145,12 @@ def fetch_papers(start_ts):
                 pub = p.get("publicationDate")
                 if not doi or doi in seen or not pub:
                     continue
-                if datetime.strptime(pub, "%Y-%m-%d").date() < cutoff:
+                try:
+                    pub_date = datetime.strptime(pub, "%Y-%m-%d").date()
+                except ValueError:
+                    continue
+                # lower bound: too old; upper bound: future-dated metadata errors
+                if pub_date < cutoff or pub_date > now.date():
                     continue
                 seen.add(doi)
                 abstract = (p.get("abstract") or "")[:config.SNIPPET_MAX_CHARS]

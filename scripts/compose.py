@@ -31,7 +31,9 @@ academic papers (with abstracts).
 
 Compose today's edition. Rules:
 - Pick ONE lead story: the most important of the window. Write a headline, a one-line deck, \
-and exactly 2 short paragraphs (2-3 sentences each). Quotes are welcome if present in the item.
+and exactly 2 short paragraphs (2-3 sentences each). Quotes are welcome if present in the item. \
+The lead must NOT be repeated in the sections or Big Tech. Each input item may appear at most \
+once in the entire edition - never reuse an item id.
 - SECTION SELECTION: from the candidate section labels present in the items, pick the \
 {sections_on_page} STRONGEST themes for today's grid. Prefer sections with multiple strong, \
 distinct stories. Fill each chosen section with {stories_per_section} stories: headline, \
@@ -180,6 +182,30 @@ def validate_and_repair(edition, raw):
     # big tech: news only (papers dropped automatically: paper ids never match news items)
     bigtech = edition.get("bigtech", {})
     bt_stories = [s for s in (fix_news_story(x) for x in bigtech.get("stories", [])) if s]
+
+    # global dedupe: no item may appear twice in the edition (lead, sections, big tech)
+    seen_ids = {lead["id"]} if lead else set()
+    deduped_sections = []
+    for sec in sections:
+        kept = []
+        for s in sec["stories"]:
+            if s["id"] in seen_ids:
+                stats["dropped"] += 1
+                continue
+            seen_ids.add(s["id"])
+            kept.append(s)
+        if kept:
+            sec["stories"] = kept
+            deduped_sections.append(sec)
+    sections = deduped_sections
+    bt_kept = []
+    for s in bt_stories:
+        if s["id"] in seen_ids:
+            stats["dropped"] += 1
+            continue
+        seen_ids.add(s["id"])
+        bt_kept.append(s)
+    bt_stories = bt_kept
     bigtech["stories"] = bt_stories
 
     # agenda
