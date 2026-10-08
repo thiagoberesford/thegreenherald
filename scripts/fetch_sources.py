@@ -78,19 +78,37 @@ def fetch_rss(query):
     return items
 
 
+def publisher_ok(source_name):
+    """Publisher allow/block filter (word-boundary, case-insensitive)."""
+    name = (source_name or "").strip()
+    if not name:
+        return False
+    for b in config.PUBLISHERS_BLOCK:
+        if re.search(r"\b" + re.escape(b) + r"\b", name, re.I):
+            return False
+    if config.PUBLISHERS_ALLOW:
+        return any(re.search(r"\b" + re.escape(a) + r"\b", name, re.I)
+                   for a in config.PUBLISHERS_ALLOW)
+    return True
+
+
 def collect_news(queries, label, start, close):
-    """Items published inside the [start, close] window."""
+    """Items published inside the [start, close] window, from allowed publishers."""
     seen, items = set(), []
     for q in queries:
         for it in fetch_rss(q)[:config.RSS_ITEMS_PER_QUERY]:
             key = (it["title"][:80], it["link"])
             if key in seen or not (start.timestamp() <= it["timestamp"] <= close.timestamp()):
                 continue
+            if not publisher_ok(it["source"]):
+                collect_news.dropped.add(it["source"])
+                continue
             seen.add(key)
             it["section"] = label
             items.append(it)
         time.sleep(0.4)
     return items
+collect_news.dropped = set()
 
 
 def fetch_papers(start_ts):
@@ -186,8 +204,12 @@ def main():
     raw["papers"] = papers
     (OUT / "raw.json").write_text(json.dumps(raw, indent=1))
     n_events = len([n for n in fresh if n["section"] == "Events"])
+    dropped_pubs = sorted(collect_news.dropped)
     print(f"news items: {len(fresh)} (of {len(deduped)} in window, "
           f"{len(deduped) - len(fresh)} already published) | events: {n_events} | papers: {len(papers)}")
+    if dropped_pubs:
+        print(f"publisher filter dropped {len(dropped_pubs)} outlet(s): {', '.join(dropped_pubs[:12])}"
+              + (" ..." if len(dropped_pubs) > 12 else ""))
     print(f"window: {raw['window_start']} -> {raw['window_close']} | events until: {raw['events_end']}")
 
 

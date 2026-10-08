@@ -173,6 +173,33 @@ PAPERS_PER_EDITION = 5
 RSS_ITEMS_PER_QUERY = 12
 SNIPPET_MAX_CHARS = 700
 
+# --- Publisher quality filter (Google News publisher names, word-boundary match) ---
+# PUBLISHERS_ALLOW: if non-empty, ONLY stories from these publishers are kept.
+# PUBLISHERS_BLOCK: always excluded, even if in the allow list.
+# To switch to a softer block-list mode: empty PUBLISHERS_ALLOW and fill PUBLISHERS_BLOCK.
+PUBLISHERS_ALLOW = [
+    # wires
+    "Reuters", "AP", "AFP", "Bloomberg",
+    # majors
+    "The Guardian", "BBC", "CNN", "CNBC", "Financial Times", "The New York Times",
+    "The Washington Post", "Al Jazeera", "DW", "France 24", "Euronews", "NPR",
+    "The Economist", "TIME", "The Independent", "The Telegraph", "Sky News",
+    "Le Monde", "El Pais",
+    # science & environment desks
+    "Nature", "New Scientist", "Scientific American", "Phys.org", "ScienceDaily",
+    "The Conversation", "National Geographic", "Live Science", "Yale Environment 360",
+    # sustainability trade press
+    "Carbon Brief", "Climate Home News", "Grist", "Inside Climate News",
+    "Mongabay", "GreenBiz", "Canary Media", "Eco-Business", "Euractiv",
+    "ESG Today", "BusinessGreen", "Sustainability Times", "Reuters Events",
+    # tech / energy trade press (Big Tech & Cloud coverage)
+    "Wired", "The Verge", "TechCrunch", "Ars Technica", "Data Center Dynamics",
+    # institutions & broadcast majors
+    "ABC News", "CBS News", "NBC News", "Axios", "Politico", "The Hill",
+    "UN News", "World Bank", "IEA", "OECD", "UNEP",
+]
+PUBLISHERS_BLOCK = []
+
 # --- Dedupe: stories published in recent editions are never repeated ---
 HISTORY_EDITIONS = 2
 HISTORY_KEEP_EDITIONS = 14

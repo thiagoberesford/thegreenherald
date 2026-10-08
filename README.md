@@ -58,7 +58,14 @@ Zero third-party Python dependencies. Runs on the GitHub Actions free tier.
 ## Configuration
 
 Everything lives in `config.py`: sections and their news queries, tracked
-companies, papers query, counts, LLM model, timezone, send hour.
+companies, papers queries, counts, LLM model, timezone, send hour.
+
+**Publisher filter:** `PUBLISHERS_ALLOW` (allow-list, active) restricts stories
+to wires (Reuters/AP/AFP/Bloomberg), majors (Guardian/BBC/...), science desks
+(Nature/Phys.org/...), sustainability and tech trade press. `PUBLISHERS_BLOCK`
+excludes always. To switch to a soft block-list mode: empty `PUBLISHERS_ALLOW`,
+fill `PUBLISHERS_BLOCK`. The fetch log prints every outlet the filter dropped,
+so widening the list is data-driven.
 
 ## Adding crossword puzzles
 
