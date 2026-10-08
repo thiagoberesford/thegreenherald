@@ -51,6 +51,9 @@ most significant; use the abstract to judge relevance. If the papers list is emp
 an empty papers array.
 - Write one joke of the day: short, about sustainability/climate/AI, family-friendly.
 - Every story MUST cite the source publisher and date as given in the item; never invent sources.
+- For every news story, set "country" to the primary country the STORY is about (e.g. "Brazil", \
+"Finland") - NOT the publisher's location. If the story is worldwide or not tied to one country \
+(e.g. a global report, a worldwide deal, COP negotiations), use an empty string.
 - Bodies must be factual and grounded in the item text. Do not add numbers that are not present.
 
 CRITICAL - item ids: every story, agenda entry and paper you output MUST include the "id" \
@@ -58,11 +61,11 @@ of the exact input item it is based on. Copy ids verbatim; do not invent ids.
 
 Return STRICT JSON only, matching exactly this schema:
 {{
-  "lead": {{"id": "", "title": "", "deck": "", "para1": "", "para2": "", "source": "", "source_url": "", "source_date": ""}},
+  "lead": {{"id": "", "country": "", "title": "", "deck": "", "para1": "", "para2": "", "source": "", "source_url": "", "source_date": ""}},
   "sections": [
-    {{"label": "", "stories": [{{"id": "", "title": "", "deck": "", "body": "", "source": "", "source_url": "", "source_date": ""}}]}}
+    {{"label": "", "stories": [{{"id": "", "country": "", "title": "", "deck": "", "body": "", "source": "", "source_url": "", "source_date": ""}}]}}
   ],
-  "bigtech": {{"stories": [{{"id": "", "title": "", "body": "", "source": "", "source_url": "", "source_date": ""}}], "briefs": ""}},
+  "bigtech": {{"stories": [{{"id": "", "country": "", "title": "", "body": "", "source": "", "source_url": "", "source_date": ""}}], "briefs": ""}},
   "agenda": [{{"id": "", "event": "", "when": "", "where": "", "source": "", "source_url": ""}}],
   "papers": [{{"id": "", "title": "", "authors": "", "journal": "", "url": "", "date": ""}}],
   "joke": {{"setup": "", "punchline": ""}}

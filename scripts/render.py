@@ -81,12 +81,19 @@ def src_line(story):
     return f'<div style="font-size:8.5px;color:#666;margin-top:2px;">Source: {label}{extra}</div>'
 
 
+def country_prefix(s):
+    c = (s.get("country") or "").strip()
+    if not c:
+        return ""
+    return f'<span style="font-size:9px;color:#666;font-weight:700;">[{esc(c)}]</span> '
+
+
 def story_block(s, first=False):
     parts = ['<div style="margin-bottom:6px;"' if first else
              '<div style="border-top:1px dotted #999;padding-top:5px;margin-top:6px;margin-bottom:6px;"']
     parts.append(">")
     parts.append(f'<a href="{esc(s.get("source_url", ""))}" target="_blank" '
-                 f'style="font-size:12px;font-weight:700;line-height:1.12;color:#111;">{esc(s["title"])}</a>')
+                 f'style="font-size:12px;font-weight:700;line-height:1.12;color:#111;">{country_prefix(s)}{esc(s["title"])}</a>')
     deck = s.get("deck") or ""
     if deck:
         parts.append(f'<div style="font-size:9px;font-style:italic;color:#444;margin:1px 0 2px 0;">{esc(deck)}</div>')
@@ -124,7 +131,7 @@ def bigtech_band(bt):
         story_tds.append(
             f'<td width="{100 // n}%" valign="top" style="{pad}{border}">'
             f'<a href="{esc(s.get("source_url", ""))}" target="_blank" '
-            f'style="font-size:11.5px;font-weight:700;line-height:1.12;color:#111;">{esc(s["title"])}</a>'
+            f'style="font-size:11.5px;font-weight:700;line-height:1.12;color:#111;">{country_prefix(s)}{esc(s["title"])}</a>'
             f'<div style="font-size:10.5px;line-height:1.35;text-align:justify;margin-top:2px;">{esc(s["body"])}</div>'
             f"{src_line(s)}</td>"
         )
@@ -147,6 +154,7 @@ def bigtech_band(bt):
 
 def agenda_band(items):
     """Compact band of upcoming events until the end of the quarter."""
+    items = [a for a in items if (a.get("event") or "").strip()]
     if not items:
         return ""
     rows = []
@@ -266,7 +274,7 @@ def build_web_html(ed, date_str):
   </table>
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
     <tr><td align="center" style="padding:6px 20px 2px 20px;">
-      <a href="{esc(lead.get('source_url', ''))}" target="_blank" style="font-size:22px;font-weight:700;line-height:1.08;color:#111;">{esc(lead["title"])}</a>
+      <a href="{esc(lead.get('source_url', ''))}" target="_blank" style="font-size:22px;font-weight:700;line-height:1.08;color:#111;">{country_prefix(lead)}{esc(lead["title"])}</a>
       <div style="font-style:italic;font-size:10.5px;color:#222;margin-top:3px;">{esc(lead.get("deck", ""))}</div>
     </td></tr>
     <tr><td style="padding:4px 0 0 0;">
