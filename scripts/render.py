@@ -78,7 +78,7 @@ def src_line(story):
     date = story.get("source_date") or ""
     label = f'<a href="{esc(url)}" target="_blank" style="color:#1a3d6e;">{esc(src)}</a>' if url else esc(src)
     extra = f" — {esc(date)}" if date else ""
-    return f'<div style="font-size:7.5px;color:#666;margin-top:3px;">Source: {label}{extra}</div>'
+    return f'<div style="font-size:8.5px;color:#666;margin-top:3px;">Source: {label}{extra}</div>'
 
 
 def story_block(s, first=False):
@@ -86,11 +86,11 @@ def story_block(s, first=False):
              '<div style="border-top:1px dotted #999;padding-top:8px;margin-top:8px;margin-bottom:9px;"']
     parts.append(">")
     parts.append(f'<a href="{esc(s.get("source_url", ""))}" target="_blank" '
-                 f'style="font-size:11px;font-weight:700;line-height:1.15;">{esc(s["title"])}</a>')
+                 f'style="font-size:12.5px;font-weight:700;line-height:1.15;color:#556B2F;">{esc(s["title"])}</a>')
     deck = s.get("deck") or ""
     if deck:
-        parts.append(f'<div style="font-size:8.5px;font-style:italic;color:#444;margin:2px 0 3px 0;">{esc(deck)}</div>')
-    parts.append(f'<div style="font-size:9.5px;line-height:1.4;text-align:justify;margin-top:3px;">{esc(s["body"])}</div>')
+        parts.append(f'<div style="font-size:9.5px;font-style:italic;color:#444;margin:2px 0 3px 0;">{esc(deck)}</div>')
+    parts.append(f'<div style="font-size:11px;line-height:1.45;text-align:justify;margin-top:3px;">{esc(s["body"])}</div>')
     parts.append(src_line(s))
     parts.append("</div>")
     return "".join(parts)
@@ -105,7 +105,7 @@ def grid_columns(sections):
         stories = "".join(story_block(s, first=(j == 0)) for j, s in enumerate(sec["stories"]))
         tds.append(
             f'<td width="{100 // len(sections)}%" valign="top" style="{pad_left}{border}">'
-            f'<div style="font-size:8.5px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;'
+            f'<div style="font-size:9.5px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;'
             f'text-align:center;border-bottom:2px solid #111;padding-bottom:2px;margin-bottom:7px;">{esc(sec["label"])}</div>'
             f"{stories}</td>"
         )
@@ -121,20 +121,20 @@ def bigtech_band(bt):
         story_tds.append(
             f'<td width="{100 // n}%" valign="top" style="{pad}{border}">'
             f'<a href="{esc(s.get("source_url", ""))}" target="_blank" '
-            f'style="font-size:10.5px;font-weight:700;line-height:1.15;">{esc(s["title"])}</a>'
-            f'<div style="font-size:9.5px;line-height:1.4;text-align:justify;margin-top:3px;">{esc(s["body"])}</div>'
+            f'style="font-size:12px;font-weight:700;line-height:1.15;color:#556B2F;">{esc(s["title"])}</a>'
+            f'<div style="font-size:11px;line-height:1.45;text-align:justify;margin-top:3px;">{esc(s["body"])}</div>'
             f"{src_line(s)}</td>"
         )
     briefs = bt.get("briefs") or ""
-    briefs_html = (f'<div style="font-size:7.5px;color:#555;font-style:italic;margin-top:7px;">{esc(briefs)}</div>'
+    briefs_html = (f'<div style="font-size:8.5px;color:#555;font-style:italic;margin-top:7px;">{esc(briefs)}</div>'
                    if briefs else "")
     return (
         '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" '
         'style="border-collapse:collapse;margin-top:10px;">'
         '<tr><td style="border:1.5px solid #111;background:#eef0f6;padding:8px 12px;">'
-        '<div style="font-size:8.5px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;'
-        'text-align:center;border-bottom:1.5px solid #111;padding-bottom:2px;margin-bottom:3px;">Big Tech &amp; Cloud</div>'
-        f'<div style="font-size:7.5px;color:#445;letter-spacing:.5px;text-align:center;margin-bottom:7px;">'
+        '<div style="font-size:9.5px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;'
+        'text-align:center;border-bottom:1.5px solid #111;padding-bottom:2px;margin-bottom:3px;">Big Tech, Cloud and AI</div>'
+        f'<div style="font-size:8px;color:#445;letter-spacing:.5px;text-align:center;margin-bottom:7px;">'
         f'Tracking: {" &middot; ".join(esc(c) for c in config.BIGTECH_COMPANIES)}</div>'
         '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" '
         'style="border-collapse:collapse;"><tr>' + "".join(story_tds) + "</tr></table>"
@@ -151,8 +151,8 @@ def papers_rows(papers):
     for i, p in enumerate(papers):
         border = "border-bottom:1px dotted #bbb;" if i < n - 1 else ""
         rows.append(
-            f'<tr><td style="{border}padding:3px 0;font-size:9px;line-height:1.3;">'
-            f'<a href="{esc(p["url"])}" target="_blank" style="font-weight:700;">{esc(p["title"])}</a>'
+            f'<tr><td style="{border}padding:4px 0;font-size:10.5px;line-height:1.4;">'
+            f'<a href="{esc(p["url"])}" target="_blank" style="font-weight:700;color:#556B2F;">{esc(p["title"])}</a>'
             f' &mdash; {esc(p.get("authors", ""))} &middot; '
             f'<a href="{esc(p["url"])}" target="_blank" style="color:#1a3d6e;">{esc(p.get("journal", ""))}</a>'
             f', {esc(p.get("date", ""))}</td></tr>'
@@ -217,36 +217,36 @@ def build_web_html(ed, date_str):
 <tr><td>
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-bottom:1px solid #111;border-collapse:collapse;">
     <tr>
-      <td style="font-size:8px;letter-spacing:.5px;text-transform:uppercase;">Advocating a liveable planet since 2026</td>
-      <td align="right" style="font-size:8px;letter-spacing:.5px;text-transform:uppercase;">Delivered daily at 06:00 (Europe/Lisbon)</td>
+      <td style="font-size:8.5px;letter-spacing:.5px;text-transform:uppercase;">Advocating a liveable planet since 2026</td>
+      <td align="right" style="font-size:8.5px;letter-spacing:.5px;text-transform:uppercase;">Delivered daily at 06:00 (Europe/Lisbon)</td>
     </tr>
   </table>
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
     <tr><td align="center" style="padding:9px 0 5px 0;">
       <span style="font-size:36px;font-weight:700;letter-spacing:1px;line-height:1;">{esc(config.BRAND)}</span><br>
-      <span style="font-style:italic;font-size:9.5px;color:#333;">&ldquo;{esc(config.TAGLINE)}&rdquo;</span>
+      <span style="font-style:italic;font-size:10px;color:#333;">&ldquo;{esc(config.TAGLINE)}&rdquo;</span>
     </td></tr>
   </table>
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-top:3px double #111;border-bottom:3px double #111;border-collapse:collapse;">
     <tr>
-      <td style="font-size:8px;text-transform:uppercase;letter-spacing:.8px;padding:3px 0;">{esc(weekday)}</td>
-      <td align="right" style="font-size:8px;text-transform:uppercase;letter-spacing:.8px;padding:3px 0;">Vol. 1 &middot; Lisbon Edition</td>
+      <td style="font-size:8.5px;text-transform:uppercase;letter-spacing:.8px;padding:3px 0;">{esc(weekday)}</td>
+      <td align="right" style="font-size:8.5px;text-transform:uppercase;letter-spacing:.8px;padding:3px 0;">Vol. 1</td>
     </tr>
   </table>
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
     <tr><td align="center" style="padding:10px 20px 3px 20px;">
-      <a href="{esc(lead.get('source_url', ''))}" target="_blank" style="font-size:22px;font-weight:700;line-height:1.1;">{esc(lead["title"])}</a>
-      <div style="font-style:italic;font-size:10px;color:#222;margin-top:4px;">{esc(lead.get("deck", ""))}</div>
+      <a href="{esc(lead.get('source_url', ''))}" target="_blank" style="font-size:24px;font-weight:700;line-height:1.1;color:#556B2F;">{esc(lead["title"])}</a>
+      <div style="font-style:italic;font-size:11px;color:#222;margin-top:4px;">{esc(lead.get("deck", ""))}</div>
     </td></tr>
     <tr><td style="padding:6px 0 0 0;">
       <table role="presentation" width="100%" cellpadding="0" cellspacing="12" style="border-collapse:separate;">
         <tr>
-          <td width="50%" valign="top" style="font-size:9.5px;line-height:1.4;text-align:justify;border-right:1px solid #ccc;padding-right:12px;">{esc(lead["para1"])}</td>
-          <td width="50%" valign="top" style="font-size:9.5px;line-height:1.4;text-align:justify;">{esc(lead["para2"])}</td>
+          <td width="50%" valign="top" style="font-size:11px;line-height:1.45;text-align:justify;border-right:1px solid #ccc;padding-right:12px;">{esc(lead["para1"])}</td>
+          <td width="50%" valign="top" style="font-size:11px;line-height:1.45;text-align:justify;">{esc(lead["para2"])}</td>
         </tr>
       </table>
     </td></tr>
-    <tr><td align="right" style="font-size:7.5px;color:#666;letter-spacing:.3px;padding-top:2px;">{src_line(lead)[5:-5]}</td></tr>
+    <tr><td align="right" style="font-size:8.5px;color:#666;letter-spacing:.3px;padding-top:2px;">{src_line(lead)[5:-5]}</td></tr>
   </table>
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid #111;border-collapse:collapse;margin-top:8px;">
     {grid_columns(ed["sections"])}
@@ -254,25 +254,25 @@ def build_web_html(ed, date_str):
   {bigtech_band(ed["bigtech"])}
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-top:2px solid #111;border-collapse:collapse;margin-top:10px;">
     <tr><td>
-      <div style="font-size:8.5px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;text-align:center;border-bottom:2px solid #111;padding:4px 0 2px 0;margin-bottom:6px;">From the Journals — Papers Published This Week</div>
+      <div style="font-size:9.5px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;text-align:center;border-bottom:2px solid #111;padding:4px 0 2px 0;margin-bottom:6px;">From the Journals — Papers Published This Week</div>
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">{papers_rows(ed["papers"])}</table>
     </td></tr>
   </table>
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-top:2px solid #111;border-collapse:collapse;margin-top:10px;">
     <tr>
       <td width="32%" valign="top" style="padding:6px 12px 0 0;border-right:1px solid #bbb;">
-        <div style="font-size:8.5px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;text-align:center;border-bottom:2px solid #111;padding-bottom:2px;margin-bottom:7px;">Joke of the Day</div>
-        <div style="font-size:10px;line-height:1.45;font-style:italic;text-align:justify;">{esc(joke.get("setup", ""))}<br><br>{esc(joke.get("punchline", ""))}</div>
-        <div style="font-size:7.5px;color:#777;margin-top:6px;">(Groans welcome. Better jokes: reply to this email.)</div>
+        <div style="font-size:9.5px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;text-align:center;border-bottom:2px solid #111;padding-bottom:2px;margin-bottom:7px;">Joke of the Day</div>
+        <div style="font-size:11.5px;line-height:1.5;font-style:italic;text-align:justify;">{esc(joke.get("setup", ""))}<br><br>{esc(joke.get("punchline", ""))}</div>
+        <div style="font-size:8.5px;color:#777;margin-top:6px;">(Groans welcome. Better jokes: reply to this email.)</div>
       </td>
       <td width="68%" valign="top" style="padding:6px 0 0 12px;" id="puzzle">
-        <div style="font-size:8.5px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;text-align:center;border-bottom:2px solid #111;padding-bottom:2px;margin-bottom:7px;">Daily Puzzle — Sustainability Mini-Crossword</div>
+        <div style="font-size:9.5px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;text-align:center;border-bottom:2px solid #111;padding-bottom:2px;margin-bottom:7px;">Daily Puzzle — Sustainability Mini-Crossword</div>
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
           <tr>
             <td width="40%" valign="top">{grid}{buttons}
-              <div style="font-size:7px;color:#777;text-align:center;margin-top:3px;">Type your answers, or print and solve with a pen &middot; Answers in tomorrow's edition</div>
+              <div style="font-size:8px;color:#777;text-align:center;margin-top:3px;">Type your answers, or print and solve with a pen &middot; Answers in tomorrow's edition</div>
             </td>
-            <td width="60%" valign="top" style="padding-left:12px;font-size:8.5px;line-height:1.45;">
+            <td width="60%" valign="top" style="padding-left:12px;font-size:9.5px;line-height:1.5;">
               <b>ACROSS</b><br>{across}<br><b>DOWN</b><br>{down}
             </td>
           </tr>
@@ -282,8 +282,8 @@ def build_web_html(ed, date_str):
   </table>
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-top:3px double #111;border-collapse:collapse;margin-top:10px;">
     <tr>
-      <td style="font-size:7px;color:#555;letter-spacing:.4px;padding-top:4px;">Compiled automatically &middot; Papers via Semantic Scholar (Scopus/DOI/arXiv records)</td>
-      <td align="right" style="font-size:7px;color:#555;letter-spacing:.4px;padding-top:4px;">Reply to this email &middot; Unsubscribe anytime</td>
+      <td style="font-size:8px;color:#555;letter-spacing:.4px;padding-top:4px;">Compiled automatically &middot; Papers via Semantic Scholar (Scopus/DOI/arXiv records)</td>
+      <td align="right" style="font-size:8px;color:#555;letter-spacing:.4px;padding-top:4px;">Reply to this email &middot; Unsubscribe anytime</td>
     </tr>
   </table>
 </td></tr>
