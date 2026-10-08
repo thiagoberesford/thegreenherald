@@ -1,4 +1,4 @@
-"""Fetch raw news and papers for today's edition.
+"""Fetch raw news, events and papers for today's edition.
 
 Outputs JSON to out/raw.json. No third-party dependencies.
 """
@@ -21,114 +21,7 @@ import config
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "out"
-TZ = ZoneInfo(config.TIMEZONE)
-
-
-def now_local():
-    return datetime.now(TZ)
-
-
-def window_bounds():
-    """Window: yesterday 00:00 -> today (send hour - WINDOW_CLOSES_BEFORE_SEND_H) local."""
-    now = now_local()
-    close = now.replace(hour=config.SEND_HOUR_LOCAL - config.WINDOW_CLOSES_BEFORE_SEND_H,
-                        minute=0, second=0, microsecond=0)
-    start = (now - timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
-    return start, close
-
-
-def rss_query_url(query):
-    return ("https://news.google.com/rss/search?q="
-            + urllib.parse.quote(query) + "&hl=en-US&gl=US&ceid=US:en")
-
-
-def fetch_rss(query):
-    req = urllib.request.Request(rss_query_url(query), headers={"User-Agent": "Mozilla/5.0"})
-    with urllib.request.urlopen(req, timeout=30) as r:
-        data = r.read()
-    root = ET.fromstring(data)
-    items = []
-    for item in root.iter("item"):
-        title = (item.findtext("title") or "").strip()
-        link = (item.findtext("link") or "").strip()
-        pub = (item.findtext("pubDate") or "").strip()
-        source = (item.findtext("source") or "").strip()
-        # Google News titles end with " - Publisher"
-        publisher = source or (title.rsplit(" - ", 1)[-1] if " - " in title else "")
-        try:
-            date = email.utils.parsedate_to_datetime(pub).astimezone(TZ)
-        except (TypeError, ValueError):
-            continue
-        items.append({
-            "title": title, "link": link, "source": publisher,
-            "date": date.isoformat(), "timestamp": date.timestamp(),
-        })
-    return items
-
-
-def collect_news(queries, label):
-    start, close = window_bounds()
-    seen, items = set(), []
-    for q in queries:
-        for it in fetch_rss(q)[:config.RSS_ITEMS_PER_QUERY]:
-            key = (it["title"][:80], it["link"])
-            if key in seen or not (start.timestamp() <= it["timestamp"] <= close.timestamp()):
-                continue
-            seen.add(key)
-            it["section"] = label
-            it["title"] = it["title"].rsplit(" - ", 1)[0] if " - " in it["title"] else it["title"]
-            items.append(it)
-    return items
-
-
-def fetch_papers():
-    start, _ = window_bounds()
-    year = start.year
-    url = ("https://api.semanticscholar.org/graph/v1/paper/search/bulk"
-           "?query=" + urllib.parse.quote(config.PAPER_QUERY)
-           + "&sort=publicationDate:desc"
-           + "&fields=" + urllib.parse.quote(config.PAPER_FIELDS)
-           + f"&year={year}-{year}")
-    headers = {"User-Agent": "TheGreenHerald/1.0 (mailto:editor@thegreenherald.com)"}
-    data = None
-    for attempt, delay in enumerate((0, 10, 30), start=1):
-        if delay:
-            print(f"Semantic Scholar 429; retry {attempt - 1} in {delay}s")
-            time.sleep(delay)
-        try:
-            req = urllib.request.Request(url, headers=headers)
-            with urllib.request.urlopen(req, timeout=30) as r:
-                data = json.loads(r.read().decode())
-            break
-        except urllib.error.HTTPError as e:
-            if e.code == 429 and attempt < 3:
-                continue
-            print(f"Semantic Scholar unavailable (HTTP {e.code}); continuing without papers")
-            return []
-    if data is None:
-        return []
-    papers = []
-    cutoff = (start - timedelta(days=1)).date()
-    for p in data.get("data", []):
-        pub = p.get("publicationDate")
-        if not pub:
-            continue
-        if datetime.strptime(pub, "%Y-%m-%d").date() < cutoff:
-            continue
-        doi = (p.get("externalIds") or {}).get("DOI")
-        if not doi:
-            continue
-        papers.append({
-            "title": p["title"],
-            "authors": ", ".join(a["name"] for a in (p.get("authors") or [])[:4]),
-            "journal": p.get("venue") or "",
-            "date": pub,
-            "url": "https://doi.org/" + doi,
-            "doi": doi,
-        })
-        if len(papers) >= 20:
-            break
-    return papers
+TZ = config.LISBON_TZ
 
 
 def normalize_title(t):
@@ -156,43 +49,146 @@ def load_recent_history(edition_date):
     return urls, titles
 
 
+def rss_query_url(query):
+    return ("https://news.google.com/rss/search?q="
+            + urllib.parse.quote(query) + "&hl=en-US&gl=US&ceid=US:en")
+
+
+def fetch_rss(query):
+    req = urllib.request.Request(rss_query_url(query), headers={"User-Agent": "Mozilla/5.0"})
+    with urllib.request.urlopen(req, timeout=30) as r:
+        data = r.read()
+    root = ET.fromstring(data)
+    items = []
+    for item in root.iter("item"):
+        title = (item.findtext("title") or "").strip()
+        link = (item.findtext("link") or "").strip()
+        pub = (item.findtext("pubDate") or "").strip()
+        source = (item.findtext("source") or "").strip()
+        publisher = source or (title.rsplit(" - ", 1)[-1] if " - " in title else "")
+        try:
+            date = email.utils.parsedate_to_datetime(pub).astimezone(TZ)
+        except (TypeError, ValueError):
+            continue
+        items.append({
+            "title": title.rsplit(" - ", 1)[0] if " - " in title else title,
+            "link": link, "source": publisher,
+            "date": date.isoformat(), "timestamp": date.timestamp(),
+        })
+    return items
+
+
+def collect_news(queries, label, start, close):
+    """Items published inside the [start, close] window."""
+    seen, items = set(), []
+    for q in queries:
+        for it in fetch_rss(q)[:config.RSS_ITEMS_PER_QUERY]:
+            key = (it["title"][:80], it["link"])
+            if key in seen or not (start.timestamp() <= it["timestamp"] <= close.timestamp()):
+                continue
+            seen.add(key)
+            it["section"] = label
+            items.append(it)
+        time.sleep(0.4)
+    return items
+
+
+def fetch_papers(start_ts):
+    """Papers from all queries, published within PAPER_MAX_AGE_DAYS; abstracts trimmed."""
+    now = datetime.now(TZ)
+    cutoff = (now - timedelta(days=config.PAPER_MAX_AGE_DAYS)).date()
+    papers, seen = [], set()
+    for query in config.PAPER_QUERIES:
+        url = ("https://api.semanticscholar.org/graph/v1/paper/search/bulk"
+               "?query=" + urllib.parse.quote(query)
+               + "&sort=publicationDate:desc"
+               + "&fields=" + urllib.parse.quote(config.PAPER_FIELDS)
+               + f"&year={now.year}-{now.year}")
+        headers = {"User-Agent": "TheGreenHerald/1.0 (mailto:editor@thegreenherald.com)"}
+        data = None
+        for attempt, delay in enumerate((0, 10, 30), start=1):
+            if delay:
+                print(f"Semantic Scholar 429 on '{query}'; retry {attempt - 1} in {delay}s")
+                time.sleep(delay)
+            try:
+                req = urllib.request.Request(url, headers=headers)
+                with urllib.request.urlopen(req, timeout=30) as r:
+                    data = json.loads(r.read().decode())
+                break
+            except urllib.error.HTTPError as e:
+                if e.code == 429 and attempt < 3:
+                    continue
+                print(f"Semantic Scholar unavailable for '{query}' (HTTP {e.code}); skipping")
+                data = None
+                break
+        if data:
+            for p in data.get("data", []):
+                doi = (p.get("externalIds") or {}).get("DOI")
+                pub = p.get("publicationDate")
+                if not doi or doi in seen or not pub:
+                    continue
+                if datetime.strptime(pub, "%Y-%m-%d").date() < cutoff:
+                    continue
+                seen.add(doi)
+                abstract = (p.get("abstract") or "")[:config.SNIPPET_MAX_CHARS]
+                papers.append({
+                    "title": p["title"],
+                    "authors": ", ".join(a["name"] for a in (p.get("authors") or [])[:4]),
+                    "journal": p.get("venue") or "",
+                    "date": pub,
+                    "url": "https://doi.org/" + doi,
+                    "doi": doi,
+                    "abstract": abstract,
+                })
+        time.sleep(2)
+    papers.sort(key=lambda p: p["date"], reverse=True)
+    return papers[:30]
+
+
 def main():
     OUT.mkdir(exist_ok=True)
-    raw = {"fetched_at": now_local().isoformat(),
-           "window_start": window_bounds()[0].isoformat(),
-           "window_close": window_bounds()[1].isoformat()}
+    wins = config.get_time_windows()
+    raw = {
+        "fetched_at": datetime.now(TZ).isoformat(),
+        "window_start": wins["news_start"].isoformat(),
+        "window_close": wins["news_end"].isoformat(),
+        "events_end": wins["events_end"].isoformat(),
+    }
+    start, close = wins["news_start"], wins["news_end"]
 
     all_news = []
     for label, queries in config.SECTIONS.items():
-        all_news.extend(collect_news(queries, label))
-    leads = collect_news(config.LEAD_QUERIES, "Lead")
-    for q in config.BIGTECH_QUERIES:
-        all_news.extend(collect_news([q], "Big Tech & Cloud"))
+        all_news.extend(collect_news(queries, label, start, close))
+    all_news.extend(collect_news(config.LEAD_QUERIES, "Lead", start, close))
+    all_news.extend(collect_news(config.BIGTECH_QUERIES, "Big Tech & Cloud", start, close))
+    events = collect_news(config.EVENTS_QUERIES, "Events", start, close)
 
-    # dedupe across sections (same link), keep first
+    # dedupe across labels (same link), keep first
     seen, deduped = set(), []
-    for it in all_news + leads:
+    for it in all_news + events:
         if it["link"] in seen:
             continue
         seen.add(it["link"])
         deduped.append(it)
     deduped.sort(key=lambda x: -x["timestamp"])
+    events_deduped = [it for it in deduped if it["section"] == "Events"]
 
     # never repeat what a recent edition already published
-    hist_urls, hist_titles = load_recent_history(now_local().date())
+    hist_urls, hist_titles = load_recent_history(datetime.now(TZ).date())
     fresh = [n for n in deduped
              if n["link"] not in hist_urls
              and normalize_title(n["title"]) not in hist_titles]
-    papers = [p for p in fetch_papers()
+    papers = [p for p in fetch_papers(start.timestamp())
               if p["url"] not in hist_urls
               and normalize_title(p["title"]) not in hist_titles]
 
     raw["news"] = fresh
     raw["papers"] = papers
     (OUT / "raw.json").write_text(json.dumps(raw, indent=1))
-    print(f"news items: {len(fresh)} (of {len(deduped)} in window, {len(deduped) - len(fresh)} already published) "
-          f"| papers: {len(papers)}")
-    print(f"window: {raw['window_start']} -> {raw['window_close']}")
+    n_events = len([n for n in fresh if n["section"] == "Events"])
+    print(f"news items: {len(fresh)} (of {len(deduped)} in window, "
+          f"{len(deduped) - len(fresh)} already published) | events: {n_events} | papers: {len(papers)}")
+    print(f"window: {raw['window_start']} -> {raw['window_close']} | events until: {raw['events_end']}")
 
 
 if __name__ == "__main__":

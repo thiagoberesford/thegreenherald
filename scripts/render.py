@@ -142,6 +142,33 @@ def bigtech_band(bt):
     )
 
 
+def agenda_band(items):
+    """Compact band of upcoming events until the end of the quarter."""
+    if not items:
+        return ""
+    rows = []
+    n = len(items)
+    for i, a in enumerate(items[:4]):
+        border = "border-bottom:1px dotted #bbb;" if i < n - 1 and i < 3 else ""
+        where = f", {esc(a.get('where', ''))}" if a.get("where") else ""
+        src = a.get("source") or ""
+        src_html = (f' <span style="font-size:8px;color:#666;">(<a href="{esc(a.get("source_url", ""))}" '
+                    f'target="_blank" style="color:#1a3d6e;">{esc(src)}</a>)</span>') if src else ""
+        rows.append(
+            f'<div style="{border}padding:2px 0;font-size:9.5px;line-height:1.35;">'
+            f'<b>{esc(a["event"])}</b> &mdash; {esc(a.get("when", ""))}{where}{src_html}</div>'
+        )
+    return (
+        '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" '
+        'style="border-collapse:collapse;margin-top:7px;">'
+        '<tr><td style="border-top:2px solid #111;padding:4px 0 1px 0;">'
+        '<div style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;'
+        'text-align:center;border-bottom:1px solid #111;padding-bottom:1px;margin-bottom:2px;">'
+        'On the Agenda &mdash; Sustainability Events This Quarter</div>'
+        + "".join(rows) + "</td></tr></table>"
+    )
+
+
 def papers_rows(papers):
     if not papers:
         return ('<tr><td style="padding:3px 0;font-size:9px;line-height:1.3;color:#555;'
@@ -253,6 +280,7 @@ def build_web_html(ed, date_str):
     {grid_columns(ed["sections"])}
   </table>
   {bigtech_band(ed["bigtech"])}
+  {agenda_band(ed.get("agenda", []))}
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-top:2px solid #111;border-collapse:collapse;margin-top:7px;">
     <tr><td>
       <div style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;text-align:center;border-bottom:2px solid #111;padding:3px 0 1px 0;margin-bottom:4px;">From the Journals — Papers Published This Week</div>
@@ -356,6 +384,8 @@ def record_history(ed, date_str):
             add(s.get("source_url"), s.get("title"))
     for s in ed.get("bigtech", {}).get("stories", []):
         add(s.get("source_url"), s.get("title"))
+    for a in ed.get("agenda", []):
+        add(a.get("source_url"), a.get("event"))
     for p in ed.get("papers", []):
         add(p.get("url"), p.get("title"))
 

@@ -7,12 +7,15 @@ News window: yesterday 00:00 -> today 05:00 Lisbon (closes one hour before send)
 
 ## What's inside
 
-- Lead story + three sections (Climate & Courts, Energy & Business, Nature & Economy)
-- Big Tech & Cloud watch: SAP, Microsoft, Amazon, Google, IBM, OpenAI, Anthropic
-- From the Journals: latest sustainability papers (Semantic Scholar / DOI)
+- Lead story + the 3 strongest themes of the day (from 7 candidate sections in `config.py`)
+- Big Tech, Cloud and AI watch: SAP, Microsoft, Amazon, Google, IBM, OpenAI, Anthropic, Meta, Nvidia, Apple, Tesla, ByteDance, Alibaba
+- On the Agenda: upcoming sustainability events until the end of the quarter
+- From the Journals: latest sustainability papers (Semantic Scholar, 7-day lookback, with abstracts)
 - Joke of the day
 - Daily mini-crossword: interactive on the web edition, printable in the email,
   with a "Play online" link pointing at the web edition
+- No-repeat memory: stories, events and papers published in recent editions never reappear
+  (registry kept in `data/published.json`)
 
 ## Pipeline
 
