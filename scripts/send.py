@@ -1,6 +1,6 @@
 """Send the email edition.
 
-Primary: Resend API (branded sender, requires a verified domain + RESEND_API_KEY).
+Primary: Resend SMTP (branded sender, requires a verified domain + RESEND_API_KEY).
 Fallback: Gmail SMTP (requires GMAIL_USER + GMAIL_APP_PASSWORD).
 
 Recipients come from the SUBSCRIBERS env var (comma-separated) or
@@ -11,8 +11,6 @@ import json
 import os
 import smtplib
 import sys
-import urllib.error
-import urllib.request
 from email.message import EmailMessage
 from email.utils import formatdate, make_msgid
 from pathlib import Path
@@ -22,7 +20,6 @@ import config
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "out"
-RESEND_API_URL = "https://api.resend.com/emails"
 
 
 def load_subscribers():
@@ -37,41 +34,36 @@ def load_subscribers():
 
 
 def send_via_resend(subscribers, subject, html, text):
-    """One individual email per subscriber (better deliverability + privacy)."""
-    api_key = os.environ["RESEND_API_KEY"]
+    """Resend SMTP (smtp.resend.com) — avoids Cloudflare's HTTP bot filter
+    on api.resend.com, which blocks Python's TLS signature with error 1010."""
+    import smtplib
+    from email.message import EmailMessage
+    from email.utils import formatdate, make_msgid
+
     sent, failed = 0, []
-    for recipient in subscribers:
-        payload = {
-            "from": f"{config.SENDER_NAME} <{config.SENDER_EMAIL}>",
-            "to": [recipient],
-            "subject": subject,
-            "html": html,
-            "text": text,
-            "reply_to": config.REPLY_TO,
-            "headers": {
-                "List-Unsubscribe": f"<mailto:{config.UNSUBSCRIBE_TO}>",
-                "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
-            },
-        }
-        req = urllib.request.Request(
-            RESEND_API_URL,
-            data=json.dumps(payload).encode(),
-            headers={
-                "Authorization": "Bearer " + api_key,
-                "Content-Type": "application/json",
-                "Accept": "application/json",
-                "User-Agent": "thegreenherald-pipeline/1.0",
-            },
-        )
-        try:
-            with urllib.request.urlopen(req, timeout=30) as r:
-                r.read()
-            sent += 1
-        except urllib.error.HTTPError as e:
-            failed.append(f"{recipient}: {e.code} {e.read().decode()[:200]}")
+    with smtplib.SMTP("smtp.resend.com", 587) as s:
+        s.starttls()
+        s.login("resend", os.environ["RESEND_API_KEY"])
+        for recipient in subscribers:
+            msg = EmailMessage()
+            msg["Subject"] = subject
+            msg["From"] = f"{config.SENDER_NAME} <{config.SENDER_EMAIL}>"
+            msg["To"] = recipient
+            msg["Reply-To"] = config.REPLY_TO
+            msg["Date"] = formatdate(localtime=True)
+            msg["Message-ID"] = make_msgid(domain=config.DOMAIN)
+            msg["List-Unsubscribe"] = f"<mailto:{config.UNSUBSCRIBE_TO}>"
+            msg["List-Unsubscribe-Post"] = "List-Unsubscribe=One-Click"
+            msg.set_content(text)
+            msg.add_alternative(html, subtype="html")
+            try:
+                s.send_message(msg)
+                sent += 1
+            except smtplib.SMTPException as e:
+                failed.append(f"{recipient}: {e}")
     if failed:
         raise SystemExit("send failures:\n" + "\n".join(failed))
-    print(f"sent via Resend to {sent} subscriber(s)")
+    print(f"sent via Resend SMTP to {sent} subscriber(s)")
 
 
 def send_via_gmail(subscribers, subject, html, text):
