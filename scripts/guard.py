@@ -21,6 +21,9 @@ def main():
     if os.environ.get("GUARD_BYPASS") == "1":
         print("GUARD_BYPASS=1: running regardless of time")
         return
+    if os.environ.get("GITHUB_EVENT_NAME") == "workflow_dispatch":
+        print("Manual run: skipping time guard (scheduled runs are still guarded)")
+        return
     now = datetime.now(ZoneInfo(config.TIMEZONE))
     if now.hour != HOUR_TO_RUN:
         print(f"Not {HOUR_TO_RUN:02d}:00 in {config.TIMEZONE} yet (now {now:%H:%M}); skipping this trigger.")
