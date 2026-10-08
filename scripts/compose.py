@@ -82,13 +82,18 @@ def call_mistral(prompt, user_content):
 def main():
     raw = json.loads((OUT / "raw.json").read_text())
 
-    # compact the raw items for the prompt
-    items = []
+    # compact the raw items for the prompt: freshest 10 per label (bounds input size)
+    by_label = {}
     for n in raw["news"]:
-        items.append({
-            "section": n["section"], "title": n["title"], "source": n["source"],
-            "url": n["link"], "date": n["date"][:16],
-        })
+        by_label.setdefault(n["section"], []).append(n)
+    items = []
+    for label, lst in by_label.items():
+        lst.sort(key=lambda x: x["date"], reverse=True)
+        for n in lst[:10]:
+            items.append({
+                "section": n["section"], "title": n["title"], "source": n["source"],
+                "url": n["link"], "date": n["date"][:16],
+            })
     papers = []
     for p in raw["papers"]:
         papers.append({
@@ -111,7 +116,20 @@ def main():
         events_end=raw.get("events_end", "")[:10],
     )
 
-    edition = json.loads(call_mistral(prompt, payload))
+    edition = None
+    for attempt in (1, 2):
+        content = call_mistral(prompt, payload)
+        try:
+            edition = json.loads(content)
+            break
+        except json.JSONDecodeError:
+            print(f"compose: invalid JSON on attempt {attempt} "
+                  f"({len(content)} chars, likely truncated); retrying")
+    if edition is None:
+        (OUT / "compose_raw.txt").write_text(content)
+        raise SystemExit(f"composer JSON invalid after 2 attempts; "
+                         f"raw response saved to out/compose_raw.txt ({len(content)} chars)")
+
     edition["meta"] = {
         "brand": config.BRAND,
         "date": raw["fetched_at"][:10],

@@ -19,7 +19,7 @@ UNSUBSCRIBE_TO = "unsubscribe@" + DOMAIN
 
 # --- LLM ---
 LLM_MODEL = "mistral-small-latest"
-LLM_MAX_TOKENS = 4096
+LLM_MAX_TOKENS = 8192
 
 # --- Time windows ---
 #   NEWS:   yesterday 00:00 Lisbon -> today 05:00 (closes 1h before the 06:00 edition)
