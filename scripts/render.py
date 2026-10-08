@@ -302,7 +302,7 @@ def build_web_html(ed, date_str):
         </tr>
       </table>
     </td></tr>
-    <tr><td align="right" style="font-size:8.5px;color:#666;letter-spacing:.3px;padding-top:1px;">{src_line(lead)[5:-5]}</td></tr>
+    <tr><td align="right" style="font-size:8.5px;color:#666;letter-spacing:.3px;padding-top:1px;">{src_line(lead)}</td></tr>
   </table>
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid #111;border-collapse:collapse;margin-top:8px;">
     {grid_columns(ed["sections"])}
