@@ -28,12 +28,17 @@ and exactly 2 short paragraphs (2-3 sentences each). Quotes are welcome if prese
 {sections_on_page} STRONGEST themes for today's grid. Prefer sections with multiple strong, \
 distinct stories. Fill each chosen section with {stories_per_section} stories: headline, \
 short italic deck (may be empty), and a 2-3 sentence body.
-- "Big Tech & Cloud" section: pick the {bigtech_n} strongest items about big tech, cloud and \
-AI + sustainability (data centres, energy, water, policy). Headline + 2-3 sentence body each. \
-Also write one "briefs" line mentioning notable other company items (or state there were none).
-- AGENDA: from items tagged "Events", list up to 4 events happening between now and \
-{events_end} (end of quarter). For each: event name, when (date or date range), where. \
-Only include clearly upcoming events with enough detail. If none qualify, return an empty array.
+- "Big Tech & Cloud" section: pick the {bigtech_n} strongest NEWS items about big tech, cloud and \
+AI + sustainability (data centres, energy, water, policy). Use only items from the news list, \
+NEVER papers from the papers list - papers belong exclusively in the papers section. \
+Headline + 2-3 sentence body each. Also write one "briefs" line mentioning notable other \
+company items ONLY if such items exist; otherwise return an empty string for briefs.
+- AGENDA: scan ALL news items (any section, including but not only "Events") for clearly \
+UPCOMING events - conferences, summits, ceremonies, deadlines - happening between now and \
+{events_end} (end of quarter). You may extract an agenda event from summit or industry \
+coverage even if it was published as a news story. List up to 4 events with event name, when \
+(date or date range), where. Only include events with a concrete upcoming date; if none \
+qualify, return an empty array.
 - Papers: select the {papers_n} most relevant from the list, preferring the most recent and \
 most significant; use the abstract to judge relevance. Keep title, authors, journal, url, date \
 exactly as given. If the papers list is empty, return an empty papers array.

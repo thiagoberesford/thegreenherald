@@ -30,7 +30,7 @@ def esc(s):
 
 CSS = """
   @page { size: A4 portrait; margin: 8mm; }
-  body { font-family: "Times New Roman", Times, Georgia, serif; background: #f4f1ea; color: #111; margin: 0; padding: 12px; }
+  body { font-family: "Times New Roman", Times, Georgia, serif; background: #ffffff; color: #111; margin: 0; padding: 12px; }
   a { color: inherit; text-decoration: none; }
   .pcell { width: 24px; height: 24px; border: 0; text-align: center; font-family: "Times New Roman", Times, Georgia, serif; font-size: 13px; font-weight: 700; text-transform: uppercase; padding: 0; margin: 0; outline: none; background: transparent; display: block; }
   .pcell:focus { background: #fdf6d8; }
@@ -126,16 +126,16 @@ def bigtech_band(bt):
             f"{src_line(s)}</td>"
         )
     briefs = bt.get("briefs") or ""
+    if re.match(r"^\s*(no\b|none\b|nothing\b|no other\b|no material\b)", briefs, re.I):
+        briefs = ""
     briefs_html = (f'<div style="font-size:8.5px;color:#555;font-style:italic;margin-top:4px;">{esc(briefs)}</div>'
-                   if briefs else "")
+                   if briefs.strip() else "")
     return (
         '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" '
         'style="border-collapse:collapse;margin-top:7px;">'
-        '<tr><td style="border:1.5px solid #111;background:#eef0f6;padding:6px 10px;">'
+        '<tr><td style="border:1.5px solid #111;background:#f0f0f0;padding:6px 10px;">'
         '<div style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;'
         'text-align:center;border-bottom:1.5px solid #111;padding-bottom:1px;margin-bottom:2px;">Big Tech, Cloud and AI</div>'
-        f'<div style="font-size:8px;color:#445;letter-spacing:.5px;text-align:center;margin-bottom:5px;">'
-        f'Tracking: {" &middot; ".join(esc(c) for c in config.BIGTECH_COMPANIES)}</div>'
         '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" '
         'style="border-collapse:collapse;"><tr>' + "".join(story_tds) + "</tr></table>"
         f"{briefs_html}</td></tr></table>"
@@ -215,9 +215,9 @@ def puzzle_html(pz):
     buttons = (
         '<div style="text-align:center;margin-top:5px;">'
         '<button id="pcheck" type="button" style="font-family:inherit;font-size:8px;letter-spacing:1px;'
-        'text-transform:uppercase;border:1px solid #111;background:#fffdf7;padding:2px 8px;cursor:pointer;">Check</button>'
+        'text-transform:uppercase;border:1px solid #111;background:#ffffff;padding:2px 8px;cursor:pointer;">Check</button>'
         '<button id="pclear" type="button" style="font-family:inherit;font-size:8px;letter-spacing:1px;'
-        'text-transform:uppercase;border:1px solid #111;background:#fffdf7;padding:2px 8px;cursor:pointer;margin-left:4px;">Clear</button>'
+        'text-transform:uppercase;border:1px solid #111;background:#ffffff;padding:2px 8px;cursor:pointer;margin-left:4px;">Clear</button>'
         "</div>"
     )
     return grid, across, down, buttons
@@ -240,7 +240,7 @@ def build_web_html(ed, date_str):
 <style>{CSS}</style>
 </head>
 <body>
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:720px;margin:0 auto;background:#fffdf7;border:1px solid #c9c4b4;padding:18px 24px;border-collapse:collapse;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:720px;margin:0 auto;background:#ffffff;border:1px solid #d9d9d9;padding:18px 24px;border-collapse:collapse;">
 <tr><td>
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-bottom:1px solid #111;border-collapse:collapse;">
     <tr>

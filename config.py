@@ -153,6 +153,8 @@ EVENTS_QUERIES = [
     "climate summit schedule agenda",
     "AI for Good summit",
     "climate week sustainability event",
+    "climate conference dates registration",
+    "environmental award ceremony date",
 ]
 
 # --- Research papers (Semantic Scholar) ---
