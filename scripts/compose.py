@@ -28,7 +28,8 @@ short italic deck (optional, may be empty), and a 2-3 sentence body for each.
 - "Big Tech & Cloud" section: pick the {bigtech_stories} strongest items about {companies} \
 and sustainability/climate/data centres. Headline + 2-3 sentence body each. Also write one \
 "briefs" line mentioning notable other company items (or state there were none).
-- Papers: select the {papers_n} most relevant from the list. Keep title, authors, journal, url, date exactly as given.
+- Papers: select the {papers_n} most relevant from the list. Keep title, authors, journal, url, date exactly as given. \
+If the papers list is empty, return an empty papers array.
 - Write one joke of the day: short, about sustainability/climate/AI, family-friendly.
 - Every story MUST cite the source publisher and date as given in the item; never invent sources.
 - Bodies must be factual and grounded in the item text. Do not add numbers that are not present.

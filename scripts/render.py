@@ -143,6 +143,9 @@ def bigtech_band(bt):
 
 
 def papers_rows(papers):
+    if not papers:
+        return ('<tr><td style="padding:3px 0;font-size:9px;line-height:1.3;color:#555;'
+                'font-style:italic;">No new sustainability papers indexed in today&rsquo;s window.</td></tr>')
     rows = []
     n = len(papers)
     for i, p in enumerate(papers):

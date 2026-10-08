@@ -7,6 +7,8 @@ import email.utils
 import json
 import re
 import sys
+import time
+import urllib.error
 import urllib.parse
 import urllib.request
 import xml.etree.ElementTree as ET
@@ -87,9 +89,24 @@ def fetch_papers():
            + "&sort=publicationDate:desc"
            + "&fields=" + urllib.parse.quote(config.PAPER_FIELDS)
            + f"&year={year}-{year}")
-    req = urllib.request.Request(url, headers={"User-Agent": "TheGreenHerald/1.0"})
-    with urllib.request.urlopen(req, timeout=30) as r:
-        data = json.loads(r.read().decode())
+    headers = {"User-Agent": "TheGreenHerald/1.0 (mailto:editor@thegreenherald.com)"}
+    data = None
+    for attempt, delay in enumerate((0, 10, 30), start=1):
+        if delay:
+            print(f"Semantic Scholar 429; retry {attempt - 1} in {delay}s")
+            time.sleep(delay)
+        try:
+            req = urllib.request.Request(url, headers=headers)
+            with urllib.request.urlopen(req, timeout=30) as r:
+                data = json.loads(r.read().decode())
+            break
+        except urllib.error.HTTPError as e:
+            if e.code == 429 and attempt < 3:
+                continue
+            print(f"Semantic Scholar unavailable (HTTP {e.code}); continuing without papers")
+            return []
+    if data is None:
+        return []
     papers = []
     cutoff = (start - timedelta(days=1)).date()
     for p in data.get("data", []):
