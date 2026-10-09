@@ -9,6 +9,7 @@
 Reads out/raw.json -> writes out/edition.json. No third-party dependencies.
 """
 
+import difflib
 import json
 import os
 import re
@@ -103,6 +104,12 @@ def _norm(t):
     return re.sub(r"\s+", " ", re.sub(r"[^a-z0-9 ]", " ", (t or "").lower())).strip()
 
 
+def _similarity(a, b):
+    if not a or not b:
+        return 0.0
+    return difflib.SequenceMatcher(None, a, b).ratio()
+
+
 def url_reachable(url):
     """HTTP check. Bot-blocks (401/403/418/429) are treated as human-reachable:
     publishers commonly block automation while the link works fine in a browser."""
@@ -121,23 +128,41 @@ def validate_and_repair(edition, raw):
     """Deterministic output guarantees. Returns (edition, report)."""
     news = raw.get("news", [])
     papers = raw.get("papers", [])
-    news_by_id = {n["id"]: n for n in news}
+    news_by_id = {n["id"]: n for n in news if n.get("id")}
+    news_by_url = {n["link"]: n for n in news}
     news_by_title = {}
     for n in news:
         news_by_title.setdefault(_norm(n["title"]), n)
-    paper_by_id = {p["id"]: p for p in papers}
+    paper_by_id = {p["id"]: p for p in papers if p.get("id")}
+    paper_by_url = {p["url"]: p for p in papers}
     paper_by_title = {}
     for p in papers:
         paper_by_title.setdefault(_norm(p["title"]), p)
 
-    stats = {"repaired": 0, "dropped": 0, "unreachable": 0}
+    stats = {"repaired": 0, "dropped": 0, "unreachable": 0, "fuzzy": 0}
 
-    def resolve_news(item_id, title):
-        item = news_by_id.get(item_id) or news_by_title.get(_norm(title))
-        return item
+    def resolve_news(item_id, title, url=None):
+        # 1. exact id  2. url echoed back  3. exact title  4. fuzzy title
+        item = news_by_id.get(item_id)
+        if item:
+            return item
+        if url and url in news_by_url:
+            return news_by_url[url]
+        t = _norm(title)
+        if t in news_by_title:
+            return news_by_title[t]
+        best, best_r = None, 0.0
+        for nt, cand in news_by_title.items():
+            r = _similarity(t, nt)
+            if r > best_r:
+                best, best_r = cand, r
+        if best and best_r >= 0.55:
+            stats["fuzzy"] += 1
+            return best
+        return None
 
     def fix_news_story(s):
-        item = resolve_news(s.get("id"), s.get("title"))
+        item = resolve_news(s.get("id"), s.get("title"), s.get("source_url"))
         if not item:
             stats["dropped"] += 1
             return None
@@ -154,7 +179,18 @@ def validate_and_repair(edition, raw):
         return s
 
     def fix_paper(p):
-        item = paper_by_id.get(p.get("id")) or paper_by_title.get(_norm(p.get("title", "")))
+        item = (paper_by_id.get(p.get("id")) or paper_by_url.get(p.get("url"))
+                or paper_by_title.get(_norm(p.get("title", ""))))
+        if not item:
+            t = _norm(p.get("title", ""))
+            best, best_r = None, 0.0
+            for pt, cand in paper_by_title.items():
+                r = _similarity(t, pt)
+                if r > best_r:
+                    best, best_r = cand, r
+            if best and best_r >= 0.60:
+                stats["fuzzy"] += 1
+                item = best
         if not item:
             stats["dropped"] += 1
             return None
@@ -211,7 +247,7 @@ def validate_and_repair(edition, raw):
     # agenda
     agenda = []
     for a in edition.get("agenda", []):
-        item = resolve_news(a.get("id"), a.get("event"))
+        item = resolve_news(a.get("id"), a.get("event"), a.get("source_url"))
         if not item:
             stats["dropped"] += 1
             continue
