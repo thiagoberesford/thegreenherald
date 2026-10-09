@@ -57,22 +57,38 @@
  },
  "2026-10-09": {
   "urls": [
-   "https://doi.org/10.3390/data11100258",
-   "https://doi.org/10.4018/ijgb.423771",
-   "https://doi.org/10.48084/etasr.20065",
-   "https://news.google.com/rss/articles/CBMigwFBVV95cUxOdzRERTlvZU5hR3FGRzhHeHZYTWdTOXpMOXp2RjFucmxyZndDbjhKU0Ywc3lYa1QwRHRRSkV2TVpGSUVpMGY1UTlObWxrWTZVWmV5UExxT0pvNnJUd3ctc3ZPR0dtTHc2RmpWZG5hZ3RjbGxZQm1tbk1mYy1ZbkJaVzRzdw?oc=5",
-   "https://news.google.com/rss/articles/CBMinAFBVV95cUxNVkptWHdXSVlFYktfRG5HSWhLRkxoMkZPWWJEWHIxWnlmNmRCREVjbjYzTkJndDFuSm5yeUc5SldXNjZCdFhQek5iWi1la1RkUWdDYjFMN3hQRlJSeUQ3SFFnR0NaUmY5Y1BUXzFTRGJzNG9PdGdlZVJPN0JoaUlpRXUyUE9ETEtNdGNDYTVNM2VKVGdhOUI3MmdiWUs?oc=5",
-   "https://news.google.com/rss/articles/CBMipgFBVV95cUxOSm9hd281QmQ5SndMbGtrTENqUURKd2d6b1JFa1BhMElJQTExT1JZZkRwNzhlRG9FX2ROMTIwMC1zWWhXbW4tTjRUbU92eG93ejVmR084U2VQMV80SFZmcWNIZDFOVXdDc04xLU16Z2x2RjltY2tZOXFIMVZ5RGpFZjgxRkJhdDF4N1pZeGNNRVdFY3Y3cTMzdjh1elA1R0pFb0FOUVF3?oc=5",
-   "https://news.google.com/rss/articles/CBMirwFBVV95cUxQZHpKUjFVb1p5QmVEWTFfTnIyRHByTl9FLXlJeF9PbkhQU21JQ19lTVQ1dndDWHBIQTRQWFBYMDdNWVJmWFVUVTJyQlNnbk82NmNvTXVreWpGdlhqTjJ2czd5LW9HTzVrczY1X2FaUFJvelRYbHBfbTF0R3RYbFl6bWUwVmpWTmZpVk9rN3R0WGg0UlhDYVgzSTJRZHN0TWt6Nk1RQS1qb0dBZ3RNTkM0?oc=5"
+   "https://apnews.com/article/asia-energy-iran-war-iea-4ac90877eb0b1ccce4e9c25b44862810",
+   "https://apnews.com/article/brazil-amazon-rainforest-solar-energy-transition-b3090d1efb1b44beef07e6d60a90f834",
+   "https://doi.org/10.1007/s43621-026-04915-x",
+   "https://doi.org/10.1007/s44163-026-02314-9",
+   "https://doi.org/10.1007/s44279-026-00786-y",
+   "https://doi.org/10.3389/fsufs.2026.1892956",
+   "https://doi.org/10.3390/fintech5040089",
+   "https://news.google.com/search?q=AI%20borrowing%20binge%20tech%20giants%20debt%20data%20centres",
+   "https://news.google.com/search?q=Australia%20High%20Court%20coal%20mine%20Mount%20Pleasant%20climate%20ruling",
+   "https://news.google.com/search?q=COP31%20Antalya%20modest%20steps%20climate%20summit%20agenda",
+   "https://news.google.com/search?q=Finland%20halts%20work%20Google%20data%20centre%20sites",
+   "https://news.google.com/search?q=Indonesia%20halts%20forest%20clearing%20rice%20paddies",
+   "https://news.google.com/search?q=OpenAI%20Australia%20hack%20data%20centres%20Kwon",
+   "https://news.google.com/search?q=Pacific%20pre-COP%20climate%20finance%20Fiji%20Nadi",
+   "https://news.google.com/search?q=young%20Canadians%20sue%20government%20climate%20Vancouver%20trial"
   ],
   "titles": [
-   "a data driven validation methodology for a multi city solar chimney dataset in smart city applications",
-   "as they consider new data centers states target water use",
-   "diagnostics of hybrid electrical machines in electromechanical systems",
-   "indonesia enters new ev industry era with first battery exports",
-   "infrastructural intelligence and green business",
-   "thousands of wind and solar park systems sit exposed on the internet across europe",
-   "what does the sbti target approval mean for cascades tsx cas"
+   "15 young canadians take ottawa to trial over climate inaction",
+   "ai borrowing binge tech giants 500bn debt race rattles markets",
+   "ai driven framework for communal cattle insurance in lupane district zimbabwe",
+   "ai in sustainable supply chain resilience predictive analytics as mediator",
+   "ai sdgs and the green transition climate risk assessment in central banking",
+   "amazon communities ditch diesel for solar ahead of el ni o",
+   "australia s high court blocks coal mine expansion in landmark climate ruling",
+   "climate responsive interior design for sustainable development a bibliometric and scoping review",
+   "cop31 eyes modest steps as disasters multiply",
+   "finland halts work on google s data centre sites",
+   "indonesia halts forest clearing for rice paddies",
+   "openai courts australia for massive data centres after hack apology",
+   "pacific presses world for climate finance at pre cop",
+   "se asia s surging electricity demand outpaces supply iea warns",
+   "the role of ai in food systems transformation opportunities challenges future directions"
   ]
  }
 }

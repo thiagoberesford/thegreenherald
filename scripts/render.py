@@ -197,6 +197,35 @@ def agenda_band(items):
     )
 
 
+def green_radar_band(meta):
+    """Per-edition AI footprint: exact tokens, public-methodology estimate."""
+    tokens = (meta.get("tokens") or {}).get("total_tokens", 0)
+    if not tokens:
+        return ""
+    wh = tokens / 1000.0 * config.GREEN_RADAR_WH_PER_1K_TOKENS
+    gco2 = wh / 1000.0 * config.GREEN_RADAR_GRID_GCO2_PER_KWH
+    fill = int(max(3.0, min(100.0, 100.0 * gco2 / config.GREEN_RADAR_SCALE_GCO2)))
+    stream = gco2 / config.GREEN_RADAR_STREAMING_G_PER_MIN
+    return (
+        '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" '
+        'style="border-collapse:collapse;margin-top:7px;">'
+        '<tr><td style="border-top:1px solid #bbb;padding:4px 0 1px 0;">'
+        '<div style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;'
+        'color:#556B2F;margin-bottom:2px;">Green Radar &mdash; this edition&rsquo;s AI footprint</div>'
+        '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" '
+        'style="border-collapse:collapse;">'
+        f'<tr><td width="{fill}%" height="5" style="background:#556B2F;font-size:0;line-height:0;">&nbsp;</td>'
+        f'<td width="{100 - fill}%" height="5" style="background:#e4e4e4;font-size:0;line-height:0;">&nbsp;</td>'
+        '</tr></table>'
+        '<div class="b-text" style="font-size:9px;color:#555;margin-top:2px;text-align:justify;">'
+        f'{tokens:,} AI tokens &asymp; {wh:.1f} Wh &asymp; {gco2:.1f} g CO<sub>2</sub>e '
+        f'&mdash; about {stream:.0f} minutes of video streaming. '
+        'Estimate under the Climb methodology (Luccioni et al. 2024); world-average grid. '
+        'Exact token counts reported by the model provider.</div>'
+        '</td></tr></table>'
+    )
+
+
 def papers_rows(papers):
     if not papers:
         return ('<tr><td style="padding:3px 0;font-size:9px;line-height:1.3;color:#555;'
@@ -337,6 +366,7 @@ def build_web_html(ed, date_str):
       </td>
     </tr>
   </table>
+  {green_radar_band(meta)}
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-top:3px double #111;border-collapse:collapse;margin-top:7px;">
     <tr>
       <td style="font-size:8px;color:#555;letter-spacing:.4px;padding-top:3px;">Compiled automatically &middot; Papers via Semantic Scholar (Scopus/DOI/arXiv records)</td>
@@ -435,6 +465,19 @@ def main():
     (OUT / "email.html").write_text(email)
 
     record_history(ed, date_str)
+
+    tokens = ed.get("meta", {}).get("tokens") or {}
+    if tokens.get("total_tokens"):
+        usage_path = ROOT / "data" / "usage.json"
+        try:
+            usage = json.loads(usage_path.read_text()) if usage_path.exists() else {}
+        except json.JSONDecodeError:
+            usage = {}
+        wh = tokens["total_tokens"] / 1000.0 * config.GREEN_RADAR_WH_PER_1K_TOKENS
+        usage[date_str] = {**tokens, "wh": round(wh, 2),
+                           "gco2e": round(wh * config.GREEN_RADAR_GRID_GCO2_PER_KWH / 1000.0, 2)}
+        usage_path.parent.mkdir(exist_ok=True)
+        usage_path.write_text(json.dumps(usage, indent=1))
 
     editions = sorted(p.stem for p in DOCS.glob("*.html") if p.stem != "index")
     (DOCS / "index.html").write_text(build_archive(editions))

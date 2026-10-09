@@ -208,3 +208,14 @@ MIN_TRUSTED_NEWS = 8
 # --- Dedupe: stories published in recent editions are never repeated ---
 HISTORY_EDITIONS = 2
 HISTORY_KEEP_EDITIONS = 14
+
+# --- Green Radar (per-edition AI footprint) ---
+# Methodology: LLM inference energy ~0.5 Wh per 1,000 tokens - mid-range of
+# published estimates (Luccioni et al. 2024 'Climb' model / Hugging Face
+# EcoLogits; Patterson et al. 2021), including datacenter overheads.
+# Grid: world-average carbon intensity ~450 g CO2e/kWh (IEA/Ember 2023).
+# Streaming equivalence: ~0.9 g CO2e per minute of 1080p video (The Shift Project).
+GREEN_RADAR_WH_PER_1K_TOKENS = 0.5
+GREEN_RADAR_GRID_GCO2_PER_KWH = 450
+GREEN_RADAR_STREAMING_G_PER_MIN = 0.9
+GREEN_RADAR_SCALE_GCO2 = 20.0      # the bar's full scale in g CO2e

@@ -98,7 +98,8 @@ def call_mistral(prompt, user_content):
     )
     with urllib.request.urlopen(req, timeout=120) as r:
         data = json.loads(r.read().decode())
-    return data["choices"][0]["message"]["content"]
+    usage = data.get("usage") or {}
+    return data["choices"][0]["message"]["content"], usage
 
 
 def _norm(t):
@@ -338,8 +339,12 @@ def main():
     )
 
     edition = None
+    usage_total = {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}
+    content = ""
     for attempt in (1, 2):
-        content = call_mistral(prompt, payload)
+        content, usage = call_mistral(prompt, payload)
+        for k in usage_total:
+            usage_total[k] += usage.get(k, 0)
         try:
             edition = json.loads(content)
             break
@@ -363,6 +368,7 @@ def main():
         "date": raw["fetched_at"][:10],
         "window_start": raw["window_start"],
         "window_close": raw["window_close"],
+        "tokens": usage_total,
     }
     (OUT / "edition.json").write_text(json.dumps(edition, indent=1))
     sections = ", ".join(s.get("label", "?") for s in edition.get("sections", []))
