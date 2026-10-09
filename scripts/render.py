@@ -220,7 +220,7 @@ def green_radar_band(meta):
         '<div class="b-text" style="font-size:9px;color:#555;margin-top:2px;text-align:justify;">'
         f'{tokens:,} AI tokens &asymp; {wh:.1f} Wh &asymp; {gco2:.1f} g CO<sub>2</sub>e '
         f'&mdash; about {stream:.0f} minutes of video streaming. '
-        'Estimate under the Climb methodology (Luccioni et al. 2024); world-average grid. '
+        'Estimate under the Climb methodology (Luccioni et al. 2024); EU-average grid (Ember 2023). '
         'Exact token counts reported by the model provider.</div>'
         '</td></tr></table>'
     )

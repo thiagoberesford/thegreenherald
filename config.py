@@ -213,9 +213,13 @@ HISTORY_KEEP_EDITIONS = 14
 # Methodology: LLM inference energy ~0.5 Wh per 1,000 tokens - mid-range of
 # published estimates (Luccioni et al. 2024 'Climb' model / Hugging Face
 # EcoLogits; Patterson et al. 2021), including datacenter overheads.
-# Grid: world-average carbon intensity ~450 g CO2e/kWh (IEA/Ember 2023).
+# Grid: EU-average carbon intensity ~250 g CO2e/kWh (Ember 2023). Mistral
+# positions La Plateforme as EU-sovereign (data under EU jurisdiction; ANSSI-
+# certified compute hosted in France), so the EU average is the defensible
+# choice. If the serving region is ever confirmed as France, use ~56 g/kWh
+# (nuclear-heavy); for a conservative worldwide figure use ~450 g/kWh.
 # Streaming equivalence: ~0.9 g CO2e per minute of 1080p video (The Shift Project).
 GREEN_RADAR_WH_PER_1K_TOKENS = 0.5
-GREEN_RADAR_GRID_GCO2_PER_KWH = 450
+GREEN_RADAR_GRID_GCO2_PER_KWH = 250
 GREEN_RADAR_STREAMING_G_PER_MIN = 0.9
 GREEN_RADAR_SCALE_GCO2 = 20.0      # the bar's full scale in g CO2e
