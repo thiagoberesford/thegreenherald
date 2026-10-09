@@ -200,6 +200,10 @@ PUBLISHERS_ALLOW = [
     "UN News", "World Bank", "IEA", "OECD", "UNEP",
 ]
 PUBLISHERS_BLOCK = []
+# If fewer than this many allow-listed stories are in the window, the fetch
+# automatically admits other outlets as an "additional" tier (marked, and the
+# composer is told to prefer trusted items and never lead with additional ones).
+MIN_TRUSTED_NEWS = 8
 
 # --- Dedupe: stories published in recent editions are never repeated ---
 HISTORY_EDITIONS = 2

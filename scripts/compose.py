@@ -39,6 +39,7 @@ once in the entire edition - never reuse an item id.
 {sections_on_page} STRONGEST themes for today's grid. Prefer sections with multiple strong, \
 distinct stories. Fill each chosen section with {stories_per_section} stories: headline, \
 short italic deck (may be empty), and a 2-3 sentence body.
+- Items have a "tier": "trusted" items come from vetted outlets; "additional" items come from other outlets and were admitted only because trusted ones were scarce. ALWAYS prefer trusted items. The lead must be a trusted item whenever any trusted item exists. Only use "additional" items to fill remaining slots.
 - "Big Tech & Cloud" section: pick the {bigtech_n} strongest NEWS items (id starting with "n") \
 about big tech, cloud and AI + sustainability. NEVER use papers (ids starting with "p") here - \
 papers belong only in the papers section. Headline + 2-3 sentence body each. Also write one \
@@ -293,6 +294,9 @@ def validate_and_repair(edition, raw):
 
 def main():
     raw = json.loads((OUT / "raw.json").read_text())
+    if not raw.get("news"):
+        raise SystemExit("fetch brought no usable news for this window; aborting edition "
+                         "(check the fetch log and publisher tiers)")
 
     # compact the raw items for the prompt: freshest 10 per label, with ids
     by_label = {}
@@ -306,8 +310,9 @@ def main():
             idx += 1
             n["id"] = f"n{idx}"
             items.append({
-                "id": n["id"], "section": n["section"], "title": n["title"],
-                "source": n["source"], "url": n["link"], "date": n["date"][:16],
+                "id": n["id"], "section": n["section"], "tier": n.get("tier", "trusted"),
+                "title": n["title"], "source": n["source"], "url": n["link"],
+                "date": n["date"][:16],
             })
     papers = []
     for i, p in enumerate(raw["papers"], start=1):

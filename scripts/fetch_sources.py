@@ -93,22 +93,33 @@ def publisher_ok(source_name):
 
 
 def collect_news(queries, label, start, close):
-    """Items published inside the [start, close] window, from allowed publishers."""
+    """Items published inside the [start, close] window (all outlets)."""
     seen, items = set(), []
     for q in queries:
         for it in fetch_rss(q)[:config.RSS_ITEMS_PER_QUERY]:
             key = (it["title"][:80], it["link"])
             if key in seen or not (start.timestamp() <= it["timestamp"] <= close.timestamp()):
                 continue
-            if not publisher_ok(it["source"]):
-                collect_news.dropped.add(it["source"])
-                continue
             seen.add(key)
             it["section"] = label
             items.append(it)
         time.sleep(0.4)
     return items
-collect_news.dropped = set()
+
+
+def split_by_trust(items):
+    """Partition into trusted (allow-list) and additional tiers."""
+    trusted, additional = [], []
+    for it in items:
+        if publisher_ok(it["source"]):
+            it["tier"] = "trusted"
+            trusted.append(it)
+        else:
+            it["tier"] = "additional"
+            additional.append(it)
+    if len(trusted) >= config.MIN_TRUSTED_NEWS:
+        return trusted, additional, False
+    return trusted + additional, additional, True
 
 
 def fetch_papers(start_ts):
@@ -198,9 +209,10 @@ def main():
 
     # never repeat what a recent edition already published
     hist_urls, hist_titles = load_recent_history(datetime.now(TZ).date())
-    fresh = [n for n in deduped
-             if n["link"] not in hist_urls
-             and normalize_title(n["title"]) not in hist_titles]
+    fresh_all = [n for n in deduped
+                 if n["link"] not in hist_urls
+                 and normalize_title(n["title"]) not in hist_titles]
+    fresh, additional, fallback_engaged = split_by_trust(fresh_all)
     papers = [p for p in fetch_papers(start.timestamp())
               if p["url"] not in hist_urls
               and normalize_title(p["title"]) not in hist_titles]
@@ -209,12 +221,14 @@ def main():
     raw["papers"] = papers
     (OUT / "raw.json").write_text(json.dumps(raw, indent=1))
     n_events = len([n for n in fresh if n["section"] == "Events"])
-    dropped_pubs = sorted(collect_news.dropped)
+    n_trusted = len([n for n in fresh if n.get("tier") == "trusted"])
     print(f"news items: {len(fresh)} (of {len(deduped)} in window, "
-          f"{len(deduped) - len(fresh)} already published) | events: {n_events} | papers: {len(papers)}")
-    if dropped_pubs:
-        print(f"publisher filter dropped {len(dropped_pubs)} outlet(s): {', '.join(dropped_pubs[:12])}"
-              + (" ..." if len(dropped_pubs) > 12 else ""))
+          f"{len(deduped) - len(fresh_all)} already published) | trusted: {n_trusted} "
+          f"| additional: {len(fresh) - n_trusted} | events: {n_events} | papers: {len(papers)}")
+    if fallback_engaged and additional:
+        dropped = sorted({n["source"] for n in additional})
+        print(f"FALLBACK engaged (fewer than {config.MIN_TRUSTED_NEWS} trusted items); "
+              f"admitting: {', '.join(dropped[:10])}")
     print(f"window: {raw['window_start']} -> {raw['window_close']} | events until: {raw['events_end']}")
 
 
