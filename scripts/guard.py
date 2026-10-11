@@ -1,9 +1,9 @@
 """Time guard for scheduled runs. Manual runs always pass.
 
-Scheduled runs are accepted during Lisbon hours 05-06 (GitHub cron delays
-are common and can push the 05:00 trigger well into the next hour), and
-only if today's edition has not already been published (double-send
-protection when both cron slots get through).
+Scheduled runs are accepted from 05:00 to 11:59 Lisbon: GitHub's free-tier
+scheduler can delay cron triggers by hours, so a late trigger still prints
+the edition (catch-up) instead of skipping it. The published-edition check
+prevents double sends when several delayed triggers go through.
 """
 
 import os
@@ -20,8 +20,10 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def decision(now, edition_already_published):
     """Returns (run: bool, reason: str)."""
-    if now.hour not in (config.SEND_HOUR_LOCAL - 1, config.SEND_HOUR_LOCAL):
-        return False, f"outside the 05-06 Lisbon window (now {now:%H:%M})"
+    if now.hour < config.SEND_HOUR_LOCAL - 1:
+        return False, f"too early ({now:%H:%M}, the edition trigger starts at 05:00)"
+    if now.hour >= 12:
+        return False, f"too late for a catch-up ({now:%H:%M}; next edition is tomorrow)"
     if edition_already_published:
         return False, "today's edition is already published"
     return True, "go"

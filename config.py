@@ -34,17 +34,19 @@ EVENT_LOOKAHEAD_QUARTERS = 0       # 0 = until end of current quarter; 1 = also 
 def get_time_windows(now: datetime | None = None) -> dict[str, datetime]:
     """Timezone-aware windows for news and events.
 
-    Any run before 07:00 Lisbon belongs to TODAY's edition (tolerates GitHub's
-    cron delays of up to 2 hours); later runs prepare tomorrow's edition.
+    Any run before NOON Lisbon belongs to TODAY's edition. This is a
+    catch-up: GitHub's free-tier scheduler can delay cron triggers by
+    hours, so a late morning run still produces the proper morning edition.
+    Runs after noon prepare tomorrow's edition.
     """
     now = (now or datetime.now(tz=LISBON_TZ)).astimezone(LISBON_TZ)
     close_hour = SEND_HOUR_LOCAL - WINDOW_CLOSES_BEFORE_SEND_H   # 05:00
 
-    morning_cutoff = now.replace(hour=SEND_HOUR_LOCAL + 1, minute=0, second=0, microsecond=0)
-    if now < morning_cutoff:
+    noon = now.replace(hour=12, minute=0, second=0, microsecond=0)
+    if now < noon:
         edition_day = now.replace(hour=0, minute=0, second=0, microsecond=0)
     else:
-        edition_day = (morning_cutoff + timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
+        edition_day = noon.replace(hour=0) + timedelta(days=1)
 
     news_end = edition_day.replace(hour=close_hour, minute=0, second=0, microsecond=0)
     news_start = edition_day - timedelta(days=1)                  # yesterday 00:00 Lisbon
