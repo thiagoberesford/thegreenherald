@@ -1,14 +1,16 @@
 """Noon watchdog: if today's edition is missing by ~12:30 Lisbon, alert the owner.
 
-Runs after the catch-up window closes (noon), so it only fires when the
-edition is genuinely missed — not merely late. A manual "Run workflow" in
-the afternoon still prints today's edition (dated today, today's news).
+Runs hourly from ~12:30 Lisbon. GitHub's scheduler delays triggers
+unpredictably, so this is dense scheduling with a dedupe marker: the first
+run to land after a missed edition sends the alert and commits
+data/alerts/YYYY-MM-DD.txt; subsequent runs see the marker and stay silent.
+A manual "Run workflow" in the afternoon still prints today's edition.
 """
 
 import os
 import smtplib
 import sys
-from datetime import datetime
+from datetime import datetime, timedelta
 from email.message import EmailMessage
 from pathlib import Path
 
@@ -22,9 +24,15 @@ def main():
     now = datetime.now(config.LISBON_TZ)
     date_str = now.strftime("%Y-%m-%d")
     edition_file = ROOT / "docs" / f"{date_str}.html"
+    markers = ROOT / "data" / "alerts"
 
     if edition_file.exists():
         print(f"watchdog: edition {date_str} present; all good")
+        return
+
+    marker = markers / f"{date_str}.txt"
+    if marker.exists():
+        print(f"watchdog: edition {date_str} missing, but alert already sent today")
         return
 
     print(f"watchdog: edition {date_str} MISSING at {now:%H:%M} Lisbon")
@@ -57,6 +65,21 @@ def main():
         s.login("resend", api_key)
         s.send_message(msg)
     print(f"alert sent to {to}")
+
+    # dedupe marker + prune, committed so all future runs see it
+    markers.mkdir(parents=True, exist_ok=True)
+    marker.write_text(f"alerted {now.isoformat()}\n")
+    cutoff = (now - timedelta(days=7)).strftime("%Y-%m-%d")
+    for m in markers.glob("*.txt"):
+        if m.stem < cutoff:
+            m.unlink()
+    if os.environ.get("GITHUB_ACTIONS") == "true":
+        os.system('git config user.name "green-herald-bot"')
+        os.system('git config user.email "actions@users.noreply.github.com"')
+        os.system("git add data/alerts/")
+        os.system('git diff --cached --quiet || '
+                  '(git commit -m "Watchdog alert ' + date_str + '" && '
+                  'git pull --rebase -X theirs origin main && git push)')
 
 
 if __name__ == "__main__":

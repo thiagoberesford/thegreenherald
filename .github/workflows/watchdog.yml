@@ -2,13 +2,14 @@ name: Edition watchdog
 
 on:
   schedule:
-    # ~12:30 Lisbon in summer (WEST); 11:30 in winter - both after the
-    # catch-up window closes at noon, so only genuinely missed editions alert
-    - cron: "30 11 * * *"
+    # Hourly from ~12:30 Lisbon (summer). The scheduler delays triggers, so
+    # this is dense: the first run to land after a missed edition alerts and
+    # commits a dedupe marker; later runs see the marker and stay silent.
+    - cron: "30 11-23 * * *"
   workflow_dispatch: {}
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   check:
