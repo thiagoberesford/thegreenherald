@@ -2,10 +2,11 @@ name: Daily edition
 
 on:
   schedule:
-    # Two slots so exactly one equals 05:00 Europe/Lisbon across DST:
-    # 04:00 UTC = 05:00 WEST (summer) | 05:00 UTC = 05:00 WET (winter)
-    - cron: "0 4 * * *"
-    - cron: "0 5 * * *"
+    # GitHub's free-tier scheduler delays triggers unpredictably (observed:
+    # 6-9 hours). Dense scheduling: fire every 30 minutes and let the time
+    # guard decide - triggers landing 05:00-11:59 Lisbon print the edition
+    # (catch-up), the rest skip in ~6s. Skipped runs are free on public repos.
+    - cron: "*/30 * * * *"
   workflow_dispatch: {}
 
 permissions:
