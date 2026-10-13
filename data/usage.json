@@ -1,0 +1,9 @@
+{
+ "2026-10-13": {
+  "prompt_tokens": 11105,
+  "completion_tokens": 4755,
+  "total_tokens": 15860,
+  "wh": 7.93,
+  "gco2e": 1.98
+ }
+}
