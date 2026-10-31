@@ -1,38 +1,4 @@
 {
- "2026-10-13": {
-  "urls": [
-   "https://doi.org/10.1007/s44163-026-02369-8",
-   "https://doi.org/10.1038/s41598-026-74300-1",
-   "https://doi.org/10.3389/fsufs.2026.1984101",
-   "https://doi.org/10.3390/en19194720",
-   "https://doi.org/10.53941/aieng.2026.100016",
-   "https://news.google.com/rss/articles/CBMi1gFBVV95cUxPeXVUNUxqcmhfOTlvakNEUEhOZlB0RmZYUVNjUFNGZ0RUZ2s3a1BOazJsV2JXM0d3TU53U1ZnM1lzQ3E3ZEtNa3JzY3V3UkZBRkZJOFRsUjRUdzYzMFdqY2Jpamt3SDNsWmQ1TkVzaG9kMkpNVVJtcUFjYTg2UXIyaVpyWFFvY05MdzBBanZTOHBZYTIxS25IQ3Z2a3FmVDRTbWIyT3BsMkFlbjRlOGFZSmdzd2pydXA0RllPUXd4ajU2REt4cmtkeTlkRS1KbmY5Ry1MTkVR0gHbAUFVX3lxTFAzTVVXYUtIcERlcmxJTnVHTnl1cFdCTmZQN0dLS1pKWEd6b09kaDVXWU9jUWxMUkNQUmlzSG03Q1VabkJGS1pfMGNrODdaN0s1UTN0RERfTzdEelUwbWRZNXA0Snc2T0ZZTE50d2hvMkNwMnRCcmM2d3ptRG0tZl9JT3hVZC1HME9lQmM2ekpIUEp0NUl6eTNhUWlnS21hRm9peEMyUHVMREs2a2UyQmlnbHk2MDhUc2lIWjF5bExsUjlaNlRibFZ6ZEpOWTJNN2ZGU09ENUpQRm9jWQ?oc=5",
-   "https://news.google.com/rss/articles/CBMi5AFBVV95cUxQUENVZzB4NGI0eGdud0t4M3NSN2xuQXVqenNDbEJCaENNbmtfZmh0MHpyRkZJN2V0dF9ISVVpTlR5dkxOeVZRZWFQT0FvRGJuYW9NZjF0RkczUFFCSGxSVTlCc21pckZFeTdyeUU1UVVyTTkxbHg4OVdaYzkxcW9iOW4tbmc2WktoODQwMU9NX0hHRGxrYXI0QXRvM2I0OThJLUsyc2JSQjNWM0xCU2l3N3M5S09XZFg5TENkV3Y2U3gyN2pFdlVDVU1SVWJaM1BHLXlYMUF6RUg3T3FfV09BdWJINEfSAeoBQVVfeXFMT0pLbkRyZHpBNFhMeGs1VnJSaDktTGpxcmVOQm9wZnllNkVyLUJCMm1jWksyQkFDSWpoUENnTG45cFFXbUE2SlFfQXk0VXpCb2JUR2NZaUpoQ1BxY2xDUHN1dGN0X0FmODVfMm5FenZLckl1MDY0NHNMRlJTLTFMcUlMZWZaZEloRl9CN1dBckdQMUV5Q1luLUVyTC1KUmFGQk5kM3RfR2w3Z1VQQVhCSEp6V2xUd0E1R0hwTy1LVGhDUXhLbnlIT2w3bTlxQUxBOERkUUN3bXVNZ25GcWJlWk8zUUY0cmZhMHJ3?oc=5",
-   "https://news.google.com/rss/articles/CBMiiwFBVV95cUxONU94aVVjYUV2Z00tMExMTlhDel8xcTRaV2lnbE1yR3pyNmJsZWI5aGlXSkMzZHBwSUhLQU43MU9LNWEtbnVIcXBCeUswcktyWE9tVEtCYVFwT2pvdFRzOWU2RDYwS1F6MUw2MlBWWVFyV0QxQlRrelNydWY5NGdfdVQ5cFpFLVpYMlJV?oc=5",
-   "https://news.google.com/rss/articles/CBMingFBVV95cUxNcFhpNlpmQTV4bzNWX2RCU1BWYXlkSjJlcW1UWTdSTlNxYnhwU2Qwa3N3a1lyRzV1Z3VZQ3AxeXBVQXB4TUMtWTlzb1hJamZtV29XU2tVdVM3Y0ppNEFWTVh1NjUtbmowYi1aYjhPN0hMUjhjR3R4ZDV2a2RySGRuT2VKZWJHa0NMei1mdjV0aDAwMUY2OFl0ZHdaam40dw?oc=5",
-   "https://news.google.com/rss/articles/CBMiqAFBVV95cUxPanFQbm45Sk1BMVhJSjk3YzUzXzdlWGU2bVpHdDAycFIwS19aV0tDcmIwbEJtQVYtTHlfZHZkN3RPVHU4RUJQZ1hCU3hRYUpaY21ZNUxNbVdzd0JyR0k5alB6VzR1VWtEMERULTZtZ3UwbkNxV1dQaUJCT1lmdDlrR0owVDlIYnR3M1h6YW5Cb0t5aDRRMlVieEQ2QUl6SWtvaXRDUC1yVUo?oc=5",
-   "https://news.google.com/rss/articles/CBMiqwFBVV95cUxOQW8yaGFPM21rZ2dhbm9XUHQwTDlPbXdZbHZGZ2NTQzMzbDVrc01rTHZta2hCS1hySnE2ZHZmdUJRLUFlMmJMaWhYQW9KVGJreE9lcUdJTWdoSEdWdXBxTkU3elpfZGtMeWtuWXFRS3RrVHlBUEpVVHpUcFpUMVpJZFlXdEhWUEFsZTNabGZOelVSaVZGdkNZbXRaa1JVaTIzcjJJRDNKUHFPaTQ?oc=5",
-   "https://news.google.com/rss/articles/CBMiwAFBVV95cUxPUTFWemFSZ0JUT05wbVpNOFZ0X0ZnUEczZ05JWU9kM2hsM3lPYkh0Ml8zbTF6RHdwLWdaTl9HanoybjFjbWZvOUZoZjJfTUtjMWlTeDdwSElpVHBzZHdRVTlxN1hUMWdzS3d0ZjEyZk1xZ0ZjdkgyR0NVVUpIcnFCSm90RDFVeVVHWGxBeThDZkxyYV9IMmJNdm1vZll6SXdsRGs5dXhvbXhyeExpSmZyQmliaW9jazFWeUJaQTl4YlM?oc=5",
-   "https://news.google.com/rss/articles/CBMiywFBVV95cUxNeWl1eDcwRjdTZF9wSTBxNFZLVkwwRFZQWkcwNFJEbTh5SWQ1SEJvalZMR3cxTkI4Z21scDVSaU5GbmY5X0NwU2Q4VU5OSm1ydV9sTEk4MWtJT1J2ZnJQZ0phbFFEVXFyUVo3cE1HdDNuNEJGWlZNS2RlV1pmQU0wWDF2T0dMR2gyV3VnRUhSWmZjS25XNG1GOV8xS1JvRUlWVFZXLU1HYW5DTFlEYnFjcHRyZ2dDNDdwemctX2NUQ2NvVjc2RG4ycVNsZw?oc=5",
-   "https://news.google.com/rss/articles/CBMizAFBVV95cUxOc0dLdnc4SkprTy1GdmI5Tk8wbEFUTkltbGdQUWRaWFQzekJLZnlma0xlYnJyd3VpM3dESmJjYUZNUE5qQjJnSkVvdnEyUG1wQlZPWnFSOGMwQTduc1NkaDd4aFV6WGo3SmFyMGY2cTBjYmxYZVU5bzhyRHNfTWRPZTFyUnN5OWJYLTd3cWp1RlcydzZFSHdRMTRHcFBRT3FMRTdzazRHanNnSk1wVHpPaG1VLWRMLVhqZHJ1ZmdJUHhVSmJPTGN6MTRfWWs?oc=5"
-  ],
-  "titles": [
-   "ai generated menus versus the t rkiye dietary guidelines nutrient adequacy ultra processed food burden cost and carbon footprint",
-   "ai s water strain includes surging demand from electricity use",
-   "different dimensions of artificial intelligence and urban energy efficiency interpretable machine learning evidence from chinese cities",
-   "energy constraints in large scale artificial intelligence and insights from human cognition for efficient large language models",
-   "i was chief scientist high court s scope 3 ruling is nonsense",
-   "machine learning based energy management and bidirectional power control for battery fed electric vehicle traction drive",
-   "microsoft may abandon its clean energy powered data centre targets",
-   "sbti approves cascades new emissions targets",
-   "science based targets for nature 2 0 sbtn unveils pragmatic guidance updates",
-   "sustainable and synergistic energy management for large model computing",
-   "t govt calls tenders for procuring 5 800 mw of renewable energy",
-   "telangana launches major renewable energy purchase plan for long term power security",
-   "the battery show and ev hybrid tech expo",
-   "u s supreme court will hear lawsuit if exxonmobil is to blame for carbon emissions"
-  ]
- },
  "2026-10-14": {
   "urls": [
    "https://doi.org/10.1093/gji/ggag430",
@@ -354,6 +320,30 @@
    "south africa s koruson 2 wind and solar project delivers 520mw of clean power",
    "the carbon footprint of robotic assisted surgery lifecycle scope based accounting and emerging ai contributions",
    "the sacred fabric fighting fast fashion in uganda"
+  ]
+ },
+ "2026-10-31": {
+  "urls": [
+   "https://doi.org/10.3389/fmats.2026.1961699",
+   "https://doi.org/10.3390/pathogens15111121",
+   "https://doi.org/10.3390/photonics13111020",
+   "https://news.google.com/rss/articles/CBMi0AFBVV95cUxOZWxMV2V4WXY4N21xcXl2YnBGOHRadjBBOUh0X09hYWNUd0M1a203WV90cE1ocVI1T29HMmJMeWpEeDBfaEdtZGlhYUpIUDVKZDNRTk5LbjVhYlVyRDJzOHFhcXhVMWdEdDM5MnlnZ3FTb3ZQMXkyUFJHWWdRempPRGJuMWxYamo5bFNnX2ItQTdmcjItdHo3WjF1UFFaSlJ5TUdpU1RVV1MxSGZSNG9tTC1DbHozRllqOXFqb2NSeGNIQ3NtYzRIME9zdUN4ODY2?oc=5",
+   "https://news.google.com/rss/articles/CBMi1gFBVV95cUxPRmR3Y0pURXNCMnhZbkNPTEtqQkVqOFVNeUMyNG9ndXlnVmhXSVZJcW90ZG1kNURXS1ZkSHhLeElOc281WXpXelczRk0yajNEYV9PMXhCZGE0ZHdQUEc1aGxkNHFGSFk3TFZxd2Znc0R6d0tUZGpPbGJKN0YwX1lhWlVJMHRkS2UtSWwta0EyNXFxNkNYQkV1QjkxYXVySTE2dDB5bmhSMEFwMC1oRlp0R2NrSXFCZXBEbHpOcDBJWDlIOXVxaG1Ua0l6aVY1QXRxaGJmSFdB?oc=5",
+   "https://news.google.com/rss/articles/CBMijwFBVV95cUxQMEs2LTNRb2RwemNSekhUQ0dDTUJkcENHZkZFXzBxMUFZT0NtWjQtd0IzQ3psNC1NYVYtT0tKc0tBQ3ZIQWNWX0NwMFFIdDM1LVU4S3dXbjY1SndubG5EM0xhWjZNb21LVkthSkVsdmNsaUpoXzVfRjEzLVg2TkhwazJFelY3N0FUOUhmdmlQcw?oc=5",
+   "https://news.google.com/rss/articles/CBMinAFBVV95cUxOS011RXEyY1dSSmdZamM5Yzk5VkxWaTNadXJqV0dGZmlWc0I3M2hhOXNMak9UWjdOTEZjN05hQ3VXNG1YczN1NVd4emxNVzZicEozeWJMOGQ5ZHVYc3BKT0dMNEVhQUV4VlJvendoMTE0N0FrQVRtS2h0XzdHN3kzQU9Mby1pZGxjUDZodURKdll0UmRta0tLbGhxRUQ?oc=5",
+   "https://news.google.com/rss/articles/CBMiogFBVV95cUxNZGNVMUFsQmh3ZTZkRzdTNzRiOFFjRlFNVFEwM3pibU9aeU5LREhyX21hR1VpSFJ5OEYzU1hEYzh2OTA4S09kbUkySnVtTXRQajZ0aXVRX2N5OTd5NHJISHg0YlUzZkdmd0Z2OFBibE9nWEZRZTYyOXFhQk1KYldhVjNsX2owYW55SVk4YkJZUVNyRktDanBvVEpndG85c3BrTEE?oc=5",
+   "https://news.google.com/rss/articles/CBMivgFBVV95cUxPNkJvOHhuQTN5NXJhbnYyMEF3Qk1hVnVpejJuSFk5QTZKLTJES3VhMlN1WVpTZ3AxcE9wOWhRZFYySjJXMm9ZWGRRd1VHMmRESmkyMzFXUGVCNjBsLUNPNmRLSFNOaXFtYlBPRFpCUW1zZlB0bWJoTDl3RXdrYVA3NmRrMlRUSU8taWVEandtRFRlQ3NaRWY2N3VsNXF4QkVzeDBlTWlGYWJ0a2hudkVHcktTdHdWZGR0N3VSYnhn?oc=5"
+  ],
+  "titles": [
+   "17th odisha environment congress",
+   "a scoping review on intelligent computing upon silicon photonics and optical network on chips",
+   "ai driven one health surveillance for zoonotic risk mitigation insights from tbe and cchf",
+   "argent energy s climate targets receive sbti validation",
+   "from electrification to climate finance how will cop31 move the needle on climate action",
+   "global briefing solar and wind investment tipped to reach 356bn by 2040 in emerging economies",
+   "machine learning ultrasonic detection of fatigue cracks a physics based simulation study",
+   "un nature summit approves two key agreements after marathon negotiations",
+   "vattenfall opens its first wind solar hybrid park in germany"
   ]
  }
 }
