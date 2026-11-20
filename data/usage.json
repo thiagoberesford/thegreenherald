@@ -201,5 +201,12 @@
   "total_tokens": 4942,
   "wh": 2.47,
   "gco2e": 0.62
+ },
+ "2026-11-20": {
+  "prompt_tokens": 7719,
+  "completion_tokens": 4820,
+  "total_tokens": 12539,
+  "wh": 6.27,
+  "gco2e": 1.57
  }
 }
